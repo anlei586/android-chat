@@ -76,8 +76,9 @@ public class SettingActivity extends WfcBaseActivity {
 
     @OnClick(R.id.aboutOptionItemView)
     void about() {
-//        Intent intent = new Intent(this, AboutActivity.class);
-//        startActivity(intent);
+        Intent intent = new Intent(this, AboutActivity.class);
+        startActivity(intent);
+        /*
         String groupId = "q4Yuru44";
         new Thread(new Runnable() {
             @Override
@@ -97,6 +98,7 @@ public class SettingActivity extends WfcBaseActivity {
 
             }
         }).start();
+        */
     }
 
     @OnClick(R.id.newMsgNotifyOptionItemView)

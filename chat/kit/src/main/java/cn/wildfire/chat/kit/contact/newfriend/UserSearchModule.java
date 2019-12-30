@@ -69,7 +69,7 @@ public class UserSearchModule extends SearchableModule<UserInfo, UserViewHolder>
 
         String _fuzzy = MainModel.clientConfig.getSearchFriendFuzzy();
         boolean fuzzy = !_fuzzy.equals("1");
-        ChatManager.Instance().searchUser(keyword, fuzzy?ChatManager.SearchUserType.General : ChatManager.SearchUserType.NameOrMobile, 0, new SearchUserCallback() {
+        ChatManager.Instance().searchUser(keyword, fuzzy?ChatManager.SearchUserType.NameOrMobile : ChatManager.SearchUserType.General, 0, new SearchUserCallback() {
 
             @Override
             public void onSuccess(List<UserInfo> infos) {
