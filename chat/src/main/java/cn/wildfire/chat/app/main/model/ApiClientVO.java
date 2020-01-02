@@ -67,6 +67,14 @@ public class ApiClientVO {
         this.searchfriendfuzzy = v;
     }
 
+    public String onfchatwinnoti = "";
+    public String getOnfchatwinnoti() {
+        return onfchatwinnoti;
+    }
+    public void setOnfchatwinnoti(String v) {
+        this.onfchatwinnoti = v;
+    }
+
 
 
 }

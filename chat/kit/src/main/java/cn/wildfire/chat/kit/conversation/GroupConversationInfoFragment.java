@@ -356,7 +356,8 @@ public class GroupConversationInfoFragment extends Fragment implements Conversat
                     groupViewModel.modifyMyGroupAlias(groupInfo.target, input.toString().trim())
                             .observe(GroupConversationInfoFragment.this, operateResult -> {
                                 if (operateResult.isSuccess()) {
-                                    myGroupNickNameOptionItemView.setDesc(input.toString().trim());
+                                    groupMember.alias = input.toString().trim();
+                                    myGroupNickNameOptionItemView.setDesc(groupMember.alias);
                                 } else {
                                     Toast.makeText(getActivity(), "修改群昵称失败:" + operateResult.getErrorCode(), Toast.LENGTH_SHORT).show();
                                 }

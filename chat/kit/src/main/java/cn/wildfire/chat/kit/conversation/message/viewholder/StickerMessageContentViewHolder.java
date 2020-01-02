@@ -2,6 +2,7 @@ package cn.wildfire.chat.kit.conversation.message.viewholder;
 
 import android.text.TextUtils;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.ImageView;
 
 import androidx.recyclerview.widget.RecyclerView;
@@ -35,8 +36,42 @@ public class StickerMessageContentViewHolder extends NormalMessageContentViewHol
     @Override
     public void onBind(UiMessage message) {
         StickerMessageContent stickerMessage = (StickerMessageContent) message.message.content;
-        imageView.getLayoutParams().width = UIUtils.dip2Px(stickerMessage.width > 150 ? 150 : stickerMessage.width);
-        imageView.getLayoutParams().height = UIUtils.dip2Px(stickerMessage.height > 150 ? 150 : stickerMessage.height);
+        //imageView.getLayoutParams().width = UIUtils.dip2Px(stickerMessage.width > 150 ? 150 : stickerMessage.width);
+        //imageView.getLayoutParams().height = UIUtils.dip2Px(stickerMessage.height > 150 ? 150 : stickerMessage.height);
+
+        int width3 = UIUtils.px2dip(UIUtils.getDisplayWidth());
+        int height3= UIUtils.px2dip(UIUtils.getDisplayHeight());
+
+        //float scale = UIUtils.scaleDensity;
+        int subpar = UIUtils.px2dip(200);
+        float subbs = (float)(subpar)/(float)(width3);
+        height3 = (int)(height3 - height3*subbs);
+        height3 = UIUtils.dip2Px(height3);
+/*
+        width3 = stickerMessage.width > width3 ? width3 : stickerMessage.width;
+        width3 = UIUtils.dip2Px(width3 - 200);
+
+        height3 = stickerMessage.height > height3 ? height3 : stickerMessage.height;
+        height3 = UIUtils.dip2Px(height3 - subb);
+*/
+        width3 = width3 - subpar;
+        //width3 = stickerMessage.width > width3 ? width3 : stickerMessage.width;
+        //height3 = stickerMessage.height > height3 ? height3 : UIUtils.dip2Px(stickerMessage.height);
+        //imageView.getLayoutParams().width = width3;
+        //imageView.getLayoutParams().height = UIUtils.dip2Px(stickerMessage.height);
+
+        int screenWidth = (UIUtils.getDisplayWidth()); // 获取屏幕宽度
+        ViewGroup.LayoutParams lp = imageView.getLayoutParams();
+        lp.width = UIUtils.dip2Px(width3);
+        lp.height = ViewGroup.LayoutParams.WRAP_CONTENT;
+        imageView.setLayoutParams(lp);
+
+        imageView.setMaxWidth(UIUtils.dip2Px(width3));
+        imageView.setMaxHeight(UIUtils.dip2Px(stickerMessage.height));
+
+        //imageView.getLayoutParams().width = UIUtils.dip2Px(stickerMessage.width > width3 ? width3 : stickerMessage.width);
+        //imageView.getLayoutParams().height = UIUtils.dip2Px(stickerMessage.height > height3 ? height3 : stickerMessage.height);
+        imageView.getLayoutParams().height = stickerMessage.height > height3 ? height3 : UIUtils.dip2Px(stickerMessage.height);
 
         if (!TextUtils.isEmpty(stickerMessage.localPath)) {
             if (stickerMessage.localPath.equals(path)) {
