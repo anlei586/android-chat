@@ -62,16 +62,16 @@ public class StickerMessageContentViewHolder extends NormalMessageContentViewHol
 
         int screenWidth = (UIUtils.getDisplayWidth()); // 获取屏幕宽度
         ViewGroup.LayoutParams lp = imageView.getLayoutParams();
-        lp.width = UIUtils.dip2Px(width3);
+        lp.width = ViewGroup.LayoutParams.WRAP_CONTENT;//UIUtils.dip2Px(width3);
         lp.height = ViewGroup.LayoutParams.WRAP_CONTENT;
         imageView.setLayoutParams(lp);
 
         imageView.setMaxWidth(UIUtils.dip2Px(width3));
         imageView.setMaxHeight(UIUtils.dip2Px(stickerMessage.height));
 
-        //imageView.getLayoutParams().width = UIUtils.dip2Px(stickerMessage.width > width3 ? width3 : stickerMessage.width);
-        //imageView.getLayoutParams().height = UIUtils.dip2Px(stickerMessage.height > height3 ? height3 : stickerMessage.height);
-        imageView.getLayoutParams().height = stickerMessage.height > height3 ? height3 : UIUtils.dip2Px(stickerMessage.height);
+        imageView.getLayoutParams().width = UIUtils.dip2Px(stickerMessage.width > width3 ? width3 : stickerMessage.width);
+//        imageView.getLayoutParams().height = UIUtils.dip2Px(stickerMessage.height > height3 ? height3 : stickerMessage.height);
+//        imageView.getLayoutParams().height = stickerMessage.height > height3 ? height3 : UIUtils.dip2Px(stickerMessage.height);
 
         if (!TextUtils.isEmpty(stickerMessage.localPath)) {
             if (stickerMessage.localPath.equals(path)) {
