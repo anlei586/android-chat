@@ -24,8 +24,6 @@ import com.huawei.hms.support.api.client.ResultCallback;
 import com.huawei.hms.support.api.push.HuaweiPush;
 import com.huawei.hms.support.api.push.TokenResult;
 import com.meizu.cloud.pushsdk.util.MzSystemUtils;
-import com.vivo.push.IPushActionListener;
-import com.vivo.push.PushClient;
 import com.xiaomi.mipush.sdk.MiPushClient;
 
 import java.io.BufferedReader;
@@ -37,6 +35,7 @@ import java.lang.reflect.Method;
 import java.util.List;
 import java.util.Properties;
 
+import cn.jpush.android.api.JPushInterface;
 import cn.wildfirechat.remote.ChatManager;
 import cn.wildfirechat.PushType;
 
@@ -73,6 +72,13 @@ public class PushService {
             INST.initXiaomi(gContext);
         }
 
+
+
+        JPushInterface.setDebugMode(false);
+        JPushInterface.init(gContext);
+        JPushInterface.clearAllNotifications(gContext);
+
+
         ProcessLifecycleOwner.get().getLifecycle().addObserver(new LifecycleObserver() {
             @OnLifecycleEvent(Lifecycle.Event.ON_START)
             public void onForeground() {
@@ -84,6 +90,10 @@ public class PushService {
             }
         });
 
+    }
+
+    public  static void setAlias(Context context, int sequence, String uid){
+        JPushInterface.setAlias(context,sequence,uid);
     }
 
     private static void clearNotification(Context context) {
@@ -254,7 +264,7 @@ public class PushService {
     }
 
     private void initVIVO(Context context) {
-
+/*
         // 在当前工程入口函数，建议在Application的onCreate函数中，添加以下代码:
         PushClient.getInstance(context).initialize();
         // 当需要打开推送服务时，调用以下代码:
@@ -268,6 +278,8 @@ public class PushService {
                 }
             }
         });
+
+ */
     }
 
 

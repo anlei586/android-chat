@@ -33,7 +33,9 @@ import cn.wildfire.chat.kit.WfcBaseActivity;
 import cn.wildfire.chat.kit.net.OKHttpHelper;
 import cn.wildfire.chat.kit.net.SimpleCallback;
 import cn.wildfire.chat.kit.third.utils.IOUtils;
+import cn.wildfire.chat.kit.utils.AnleiUtils;
 import cn.wildfirechat.chat.R;
+import cn.wildfirechat.push.PushService;
 import okhttp3.Call;
 import okhttp3.Callback;
 import okhttp3.FormBody;
@@ -130,6 +132,10 @@ public class SMSLoginActivity extends WfcBaseActivity {
                 intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
                 startActivity(intent);
                 finish();
+
+                String __uid = loginResult.getUserId();
+                __uid = AnleiUtils.str2HexStr(__uid).replace(" ","");
+                PushService.setAlias(getApplicationContext(), 1, __uid);
             }
 
             @Override

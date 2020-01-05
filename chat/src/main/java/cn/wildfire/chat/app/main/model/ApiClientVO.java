@@ -75,6 +75,14 @@ public class ApiClientVO {
         this.onfchatwinnoti = v;
     }
 
+    public String onfgroupuname = "";
+    public String getOnfgroupuname() {
+        return onfgroupuname;
+    }
+    public void setOnfgroupuname(String v) {
+        this.onfgroupuname = v;
+    }
+
 
 
 }
