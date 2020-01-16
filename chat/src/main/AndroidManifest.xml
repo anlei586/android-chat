@@ -269,7 +269,7 @@
             mimi    790368.com  19358de08d97a900412a868c
             UTkf    utkfht.com  12c3bf69289e16db0d17594f
           -->
-        <meta-data android:name="serverurl" android:value="mx6.me" />
+        <meta-data android:name="serverurl" android:value="790368.com" />
 
     </application>
 </manifest>

@@ -83,6 +83,14 @@ public class ApiClientVO {
         this.onfgroupuname = v;
     }
 
+    public String onfgrouplinshi = "";
+    public String getOnfgrouplinshi() {
+        return onfgrouplinshi;
+    }
+    public void setOnfgrouplinshi(String v) {
+        this.onfgrouplinshi = v;
+    }
+
 
 
 }

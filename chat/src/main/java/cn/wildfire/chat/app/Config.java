@@ -74,7 +74,7 @@ public interface Config {
     //String APP_SERVER_URL = "http://192.168.133.179";
     String APP_SERVER_URL = "http://"+getMFSU();
     String APP_SERVER_ADDRESS = APP_SERVER_URL + ":8888";
-    String APP_SERVER_PHP = getMFSH()+"://"+getMFSU() + ":" + getMFSPort();
+    String APP_SERVER_PHP = getMFSPort().isEmpty() ? getMFSH()+"://"+getMFSU() : getMFSH()+"://"+getMFSU() + ":" + getMFSPort();
 
     String ICE_ADDRESS = "turn:turn.wildfirechat.cn:3478";
     String ICE_USERNAME = "wfchat";
