@@ -26,7 +26,7 @@ android {
                 VIVO_APP_KEY : "c42feb05-de6c-427d-af55-4f902d9e0a75",
 
 
-                JPUSH_APPKEY : "6aecb32d50716ae781d90a90",
+                JPUSH_APPKEY : "19358de08d97a900412a868c",
                 JPUSH_CHANNEL: "default_developer",
         ]
     }

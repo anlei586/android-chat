@@ -41,7 +41,7 @@
         <cn.wildfire.chat.kit.widget.OptionItemView
             android:id="@+id/diagnoseOptionItemView"
             style="@style/OptionItem"
-            android:background="@drawable/anleiradiusbottom"
+            android:background="@drawable/anleiradiusmid"
             android:layout_marginLeft="8dp"
             android:layout_marginRight="8dp"
             android:layout_marginTop="-1dp"
@@ -51,7 +51,10 @@
         <cn.wildfire.chat.kit.widget.OptionItemView
             android:id="@+id/uploadLogOptionItemView"
             style="@style/OptionItem"
-            android:background="@drawable/selector_common_item"
+            android:background="@drawable/anleiradiusbottom"
+            android:layout_marginLeft="8dp"
+            android:layout_marginRight="8dp"
+            android:layout_marginTop="-1dp"
             android:clickable="true"
             app:title="上传日志" />
     </LinearLayout>

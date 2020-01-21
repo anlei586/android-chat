@@ -84,22 +84,20 @@ public class SettingActivity extends WfcBaseActivity {
     @OnClick(R.id.uploadLogOptionItemView)
     void uploadLog() {
 		AppService.Instance().uploadLog(new SimpleCallback<String>() {
-			new Thread(new Runnable() {
-				@Override
-				public void onUiSuccess(String path) {
-					if (!isFinishing()) {
-						Toast.makeText(SettingActivity.this, "上传日志" + path + "成功", Toast.LENGTH_SHORT).show();
-					}
-				}
+            @Override
+            public void onUiSuccess(String path) {
+                if (!isFinishing()) {
+                    Toast.makeText(SettingActivity.this, "上传日志" + path + "成功", Toast.LENGTH_SHORT).show();
+                }
+            }
 
-				@Override
-				public void onUiFailure(int code, String msg) {
-					if (!isFinishing()) {
-						Toast.makeText(SettingActivity.this, "上传日志失败" + code + msg, Toast.LENGTH_SHORT).show();
-					}
-				}
-			});
-		}
+            @Override
+            public void onUiFailure(int code, String msg) {
+                if (!isFinishing()) {
+                    Toast.makeText(SettingActivity.this, "上传日志失败" + code + msg, Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
 	}
 
 
