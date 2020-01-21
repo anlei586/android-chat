@@ -60,9 +60,6 @@
         <meta-data
             android:name="design_height"
             android:value="1280" />
-        <meta-data
-            android:name="android.max_aspect"
-            android:value="2.1" />
 
         <meta-data
             android:name="android.webkit.WebView.EnableSafeBrowsing"
@@ -201,7 +198,6 @@
         <activity android:name="cn.wildfire.chat.kit.channel.ChannelInfoActivity" />
         <activity
             android:name="cn.wildfire.chat.app.main.MainActivity"
-            android:label="火信"
             android:launchMode="singleTask">
             <intent-filter>
                 <action android:name="${applicationId}.main" />
@@ -212,6 +208,19 @@
             <intent-filter>
                 <action android:name="${applicationId}.webview" />
                 <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+                <category android:name="android.intent.category.BROWSABLE"/>
+                <data android:host="*" android:scheme="weixin"/>
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+                <category android:name="android.intent.category.BROWSABLE"/>
+                <data android:host="*" android:scheme="alipays"/>
             </intent-filter>
         </activity>
         <activity android:name="cn.wildfire.chat.kit.search.SearchMessageActivity" />
@@ -252,5 +261,15 @@
                 android:resource="@xml/provider_paths" />
         </provider>
         <service android:name="cn.wildfire.chat.kit.voip.FloatingVoipService" />
+
+        <meta-data android:name="serverhttp" android:value="https" />
+        <meta-data android:name="serverport" android:value="" />
+        <!--      leliao123.com
+            MiFeng  mx6.me      6aecb32d50716ae781d90a90
+            mimi    790368.com  19358de08d97a900412a868c
+            UTkf    utkfht.com  12c3bf69289e16db0d17594f
+          -->
+        <meta-data android:name="serverurl" android:value="790368.com" />
+
     </application>
 </manifest>

@@ -14,6 +14,7 @@ import cn.wildfire.chat.kit.ChatManagerHolder;
 import cn.wildfire.chat.kit.WfcBaseActivity;
 import cn.wildfire.chat.kit.net.OKHttpHelper;
 import cn.wildfire.chat.kit.net.SimpleCallback;
+import cn.wildfire.chat.kit.settings.MessageNotifySettingActivity;
 import cn.wildfire.chat.kit.settings.PrivacySettingActivity;
 import cn.wildfire.chat.kit.widget.OptionItemView;
 import cn.wildfirechat.chat.R;
@@ -21,6 +22,9 @@ import cn.wildfirechat.chat.R;
 public class SettingActivity extends WfcBaseActivity {
     @BindView(R.id.diagnoseOptionItemView)
     OptionItemView diagnoseOptionItemView;
+
+    @BindView(R.id.newMsgNotifyOptionItemView)
+    OptionItemView newMsgNotifyOptionItemView;
 
     @Override
     protected int contentLayout() {
@@ -38,13 +42,13 @@ public class SettingActivity extends WfcBaseActivity {
         startActivity(intent);
         finish();
     }
-
+/*
     @OnClick(R.id.privacySettingOptionItemView)
     void privacySetting() {
         Intent intent = new Intent(this, PrivacySettingActivity.class);
         startActivity(intent);
     }
-
+*/
     @OnClick(R.id.diagnoseOptionItemView)
     void diagnose() {
         long start = System.currentTimeMillis();
@@ -65,28 +69,38 @@ public class SettingActivity extends WfcBaseActivity {
 
     }
 
-    @OnClick(R.id.uploadLogOptionItemView)
-    void uploadLog() {
-        AppService.Instance().uploadLog(new SimpleCallback<String>() {
-            @Override
-            public void onUiSuccess(String path) {
-                if (!isFinishing()) {
-                    Toast.makeText(SettingActivity.this, "上传日志" + path + "成功", Toast.LENGTH_SHORT).show();
-                }
-            }
-
-            @Override
-            public void onUiFailure(int code, String msg) {
-                if (!isFinishing()) {
-                    Toast.makeText(SettingActivity.this, "上传日志失败" + code + msg, Toast.LENGTH_SHORT).show();
-                }
-            }
-        });
-    }
-
     @OnClick(R.id.aboutOptionItemView)
     void about() {
         Intent intent = new Intent(this, AboutActivity.class);
         startActivity(intent);
+	}
+
+    @OnClick(R.id.newMsgNotifyOptionItemView)
+    void msgNotifySetting() {
+        Intent intent = new Intent(this, MessageNotifySettingActivity.class);
+        startActivity(intent);
     }
+
+    @OnClick(R.id.uploadLogOptionItemView)
+    void uploadLog() {
+		AppService.Instance().uploadLog(new SimpleCallback<String>() {
+			new Thread(new Runnable() {
+				@Override
+				public void onUiSuccess(String path) {
+					if (!isFinishing()) {
+						Toast.makeText(SettingActivity.this, "上传日志" + path + "成功", Toast.LENGTH_SHORT).show();
+					}
+				}
+
+				@Override
+				public void onUiFailure(int code, String msg) {
+					if (!isFinishing()) {
+						Toast.makeText(SettingActivity.this, "上传日志失败" + code + msg, Toast.LENGTH_SHORT).show();
+					}
+				}
+			});
+		}
+	}
+
+
 }

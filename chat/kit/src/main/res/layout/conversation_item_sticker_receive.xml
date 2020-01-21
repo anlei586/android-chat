@@ -5,6 +5,4 @@
     android:layout_height="wrap_content"
     android:adjustViewBounds="true"
     android:paddingLeft="8dp"
-    android:maxWidth="150dp"
-    android:maxHeight="150dp"
-    android:scaleType="centerCrop" />
+    android:scaleType="fitCenter" />

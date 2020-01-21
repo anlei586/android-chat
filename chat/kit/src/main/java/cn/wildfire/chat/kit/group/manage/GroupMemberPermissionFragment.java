@@ -17,6 +17,8 @@ import java.util.Collections;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import cn.wildfire.chat.app.MyApp;
+import cn.wildfire.chat.app.main.model.MainModel;
 import cn.wildfire.chat.kit.group.GroupViewModel;
 import cn.wildfirechat.chat.R;
 import cn.wildfirechat.model.GroupInfo;
@@ -54,6 +56,11 @@ public class GroupMemberPermissionFragment extends Fragment {
         privateChatSwitchButton.setCheckedNoEvent(groupInfo.privateChat == 0);
         privateChatSwitchButton.setOnCheckedChangeListener((buttonView, isChecked) -> {
             GroupViewModel groupViewModel = ViewModelProviders.of(this).get(GroupViewModel.class);
+            if(Integer.parseInt(MainModel.clientConfig.getOnfgrouplinshi())!=1){
+                Toast.makeText(MyApp.getContext(), "后台管理禁止了该按钮", Toast.LENGTH_SHORT).show();
+                privateChatSwitchButton.setCheckedNoEvent(!isChecked);
+                return;
+            }
             groupViewModel.preventPrivateChat(groupInfo.target, isChecked, null, Collections.singletonList(0)).observe(this, booleanOperateResult -> {
                 if (!booleanOperateResult.isSuccess()) {
                     privateChatSwitchButton.setCheckedNoEvent(!isChecked);

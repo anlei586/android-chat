@@ -13,7 +13,7 @@ android {
     aaptOptions.cruncherEnabled = false
     aaptOptions.useNewCruncher = false
     defaultConfig {
-        applicationId "cn.wildfirechat.chat"
+        applicationId "com.mm790368" //com.leliao123  //com.utkfht //me.mx6 //咪咪com.mm790368
         minSdkVersion 16
         targetSdkVersion 28 //当targetversion大于23时，需要使用fileprovider
         versionCode 23
@@ -26,7 +26,7 @@ android {
         }
         signingConfig signingConfigs.wfc
 
-//        buildConfigField("String", "BuglyId", '"34490ba79f"')
+        buildConfigField("String", "BuglyId", '"34490ba79f"')
 
         ndk {
             abiFilters "armeabi-v7a", 'x86', 'x86_64' // ，'armeabi', 'arm64-v8a', 'x86', 'x86_64'
@@ -63,6 +63,7 @@ android {
     }
     productFlavors {
     }
+    buildToolsVersion = '28.0.3'
 
     compileOptions {
         sourceCompatibility 1.8

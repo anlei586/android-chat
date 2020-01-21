@@ -32,6 +32,7 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 import cn.wildfire.chat.app.main.MainActivity;
+import cn.wildfire.chat.app.main.model.MainModel;
 import cn.wildfire.chat.kit.AppServiceProvider;
 import cn.wildfire.chat.kit.ChatManagerHolder;
 import cn.wildfire.chat.kit.WfcScheme;
@@ -252,6 +253,11 @@ public class GroupConversationInfoFragment extends Fragment implements Conversat
             userViewModel.setUserSetting(UserSettingScope.GroupHideNickname, groupInfo.target, isChecked ? "1" : "0");
         });
 
+        if(Integer.parseInt(MainModel.clientConfig.getOnfgroupuname())==1){
+            myGroupNickNameOptionItemView.setVisibility(View.VISIBLE);
+        }else {
+            myGroupNickNameOptionItemView.setVisibility(View.GONE);
+        }
         myGroupNickNameOptionItemView.setDesc(groupMember.alias);
         groupNameOptionItemView.setDesc(groupInfo.name);
 
@@ -356,7 +362,8 @@ public class GroupConversationInfoFragment extends Fragment implements Conversat
                     groupViewModel.modifyMyGroupAlias(groupInfo.target, input.toString().trim(), null, Collections.singletonList(0))
                             .observe(GroupConversationInfoFragment.this, operateResult -> {
                                 if (operateResult.isSuccess()) {
-                                    myGroupNickNameOptionItemView.setDesc(input.toString().trim());
+                                    groupMember.alias = input.toString().trim();
+                                    myGroupNickNameOptionItemView.setDesc(groupMember.alias);
                                 } else {
                                     Toast.makeText(getActivity(), "修改群昵称失败:" + operateResult.getErrorCode(), Toast.LENGTH_SHORT).show();
                                 }
