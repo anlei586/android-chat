@@ -32,6 +32,7 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 import cn.wildfire.chat.app.main.MainActivity;
+import cn.wildfire.chat.app.main.model.MainModel;
 import cn.wildfire.chat.kit.AppServiceProvider;
 import cn.wildfire.chat.kit.ChatManagerHolder;
 import cn.wildfire.chat.kit.WfcScheme;
@@ -163,7 +164,7 @@ public class GroupConversationInfoFragment extends Fragment implements Conversat
         progressBar.setVisibility(View.VISIBLE);
 
         groupViewModel = ViewModelProviders.of(this).get(GroupViewModel.class);
-        groupInfo = groupViewModel.getGroupInfo(conversationInfo.conversation.target, false);
+        groupInfo = groupViewModel.getGroupInfo(conversationInfo.conversation.target, true);
         if (groupInfo != null) {
             groupMember = ChatManager.Instance().getGroupMember(groupInfo.target, ChatManager.Instance().getUserId());
         }
@@ -252,6 +253,11 @@ public class GroupConversationInfoFragment extends Fragment implements Conversat
             userViewModel.setUserSetting(UserSettingScope.GroupHideNickname, groupInfo.target, isChecked ? "1" : "0");
         });
 
+        if(Integer.parseInt(MainModel.clientConfig.getOnfgroupuname())==1){
+            myGroupNickNameOptionItemView.setVisibility(View.VISIBLE);
+        }else {
+            myGroupNickNameOptionItemView.setVisibility(View.GONE);
+        }
         myGroupNickNameOptionItemView.setDesc(groupMember.alias);
         groupNameOptionItemView.setDesc(groupInfo.name);
 
@@ -353,10 +359,11 @@ public class GroupConversationInfoFragment extends Fragment implements Conversat
     void updateMyGroupAlias() {
         MaterialDialog dialog = new MaterialDialog.Builder(getActivity())
                 .input("请输入你的群昵称", groupMember.alias, false, (dialog1, input) -> {
-                    groupViewModel.modifyMyGroupAlias(groupInfo.target, input.toString().trim())
+                    groupViewModel.modifyMyGroupAlias(groupInfo.target, input.toString().trim(), null, Collections.singletonList(0))
                             .observe(GroupConversationInfoFragment.this, operateResult -> {
                                 if (operateResult.isSuccess()) {
-                                    myGroupNickNameOptionItemView.setDesc(input.toString().trim());
+                                    groupMember.alias = input.toString().trim();
+                                    myGroupNickNameOptionItemView.setDesc(groupMember.alias);
                                 } else {
                                     Toast.makeText(getActivity(), "修改群昵称失败:" + operateResult.getErrorCode(), Toast.LENGTH_SHORT).show();
                                 }
@@ -374,7 +381,7 @@ public class GroupConversationInfoFragment extends Fragment implements Conversat
     @OnClick(R.id.quitButton)
     void quitGroup() {
         if (groupInfo != null && userViewModel.getUserId().equals(groupInfo.owner)) {
-            groupViewModel.dismissGroup(conversationInfo.conversation.target, Collections.singletonList(0)).observe(this, aBoolean -> {
+            groupViewModel.dismissGroup(conversationInfo.conversation.target, Collections.singletonList(0), null).observe(this, aBoolean -> {
                 if (aBoolean != null && aBoolean) {
                     Intent intent = new Intent(getActivity(), MainActivity.class);
                     startActivity(intent);
@@ -383,7 +390,7 @@ public class GroupConversationInfoFragment extends Fragment implements Conversat
                 }
             });
         } else {
-            groupViewModel.quitGroup(conversationInfo.conversation.target, Collections.singletonList(0)).observe(this, aBoolean -> {
+            groupViewModel.quitGroup(conversationInfo.conversation.target, Collections.singletonList(0), null).observe(this, aBoolean -> {
                 if (aBoolean != null && aBoolean) {
                     Intent intent = new Intent(getActivity(), MainActivity.class);
                     startActivity(intent);

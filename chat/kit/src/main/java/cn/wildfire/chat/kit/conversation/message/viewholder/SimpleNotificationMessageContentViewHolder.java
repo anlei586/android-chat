@@ -1,11 +1,13 @@
 package cn.wildfire.chat.kit.conversation.message.viewholder;
 
 import android.view.View;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import androidx.recyclerview.widget.RecyclerView;
 
 import butterknife.BindView;
+import cn.wildfire.chat.app.main.model.MainModel;
 import cn.wildfire.chat.kit.annotation.LayoutRes;
 import cn.wildfire.chat.kit.annotation.MessageContentType;
 import cn.wildfire.chat.kit.conversation.ConversationFragment;
@@ -54,7 +56,8 @@ import cn.wildfirechat.message.notification.TransferGroupOwnerNotificationConten
  *
  */
 public class SimpleNotificationMessageContentViewHolder extends NotificationMessageContentViewHolder {
-
+    @BindView(R.id.notificationContainer)
+    LinearLayout notificationContainer;
     @BindView(R.id.notificationTextView)
     TextView notificationTextView;
 
@@ -74,6 +77,12 @@ public class SimpleNotificationMessageContentViewHolder extends NotificationMess
     }
 
     protected void onBind(UiMessage message) {
+        String onf = MainModel.clientConfig.getOnfchatwinnoti();
+        if(onf.equals("0")) {
+            notificationContainer.setVisibility(View.GONE);
+        }else{
+            notificationContainer.setVisibility(View.VISIBLE);
+        }
         String notification;
         try {
             notification = ((NotificationMessageContent) message.message.content).formatNotification(message.message);

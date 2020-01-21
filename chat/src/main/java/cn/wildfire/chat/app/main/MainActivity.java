@@ -253,6 +253,7 @@ public class MainActivity extends WfcBaseActivity implements ViewPager.OnPageCha
         new Handler().postDelayed(new Runnable() {
             @Override
             public void run() {
+                conversationListViewModel.reloadConversationUnreadStatus();
                 String php_url = Config.APP_SERVER_PHP + "/yh/apiclient.php?uid="+uid;
                 Log.e("G:", php_url);
 

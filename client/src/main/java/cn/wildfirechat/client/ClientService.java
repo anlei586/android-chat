@@ -14,7 +14,6 @@ import android.os.Looper;
 import android.os.RemoteCallbackList;
 import android.os.RemoteException;
 import android.preference.PreferenceManager;
-import android.provider.Settings;
 import android.text.TextUtils;
 
 import androidx.annotation.Nullable;
@@ -37,7 +36,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.UUID;
 
 import cn.wildfirechat.ErrorCode;
 import cn.wildfirechat.message.CallStartMessageContent;
@@ -109,10 +107,10 @@ import static cn.wildfirechat.client.ConnectionStatus.ConnectionStatusConnected;
 import static cn.wildfirechat.client.ConnectionStatus.ConnectionStatusConnecting;
 import static cn.wildfirechat.client.ConnectionStatus.ConnectionStatusLogout;
 import static cn.wildfirechat.client.ConnectionStatus.ConnectionStatusReceiveing;
-import static cn.wildfirechat.client.ConnectionStatus.ConnectionStatusUnconnected;
 import static cn.wildfirechat.remote.UserSettingScope.ConversationSilent;
 import static cn.wildfirechat.remote.UserSettingScope.ConversationTop;
 import static com.tencent.mars.comm.PlatformComm.context;
+import static com.tencent.mars.xlog.Xlog.AppednerModeAsync;
 
 
 /**
@@ -139,6 +137,7 @@ public class ClientService extends Service implements SdtLogic.ICallBack,
 
     private boolean logined;
     private String userId;
+    private String clientId;
     private RemoteCallbackList<IOnReceiveMessageListener> onReceiveMessageListeners = new WfcRemoteCallbackList<>();
     private RemoteCallbackList<IOnConnectionStatusChangeListener> onConnectionStatusChangeListenes = new WfcRemoteCallbackList<>();
     private RemoteCallbackList<IOnFriendUpdateListener> onFriendUpdateListenerRemoteCallbackList = new WfcRemoteCallbackList<>();
@@ -159,14 +158,8 @@ public class ClientService extends Service implements SdtLogic.ICallBack,
     private BaseEvent.ConnectionReceiver mConnectionReceiver;
 
     private String mHost;
-    private int mPort;
 
     private class ClientServiceStub extends IRemoteClient.Stub {
-
-        @Override
-        public String getClientId() throws RemoteException {
-            return getDeviceType().clientid;
-        }
 
         @Override
         public boolean connect(String userName, String userPwd) throws RemoteException {
@@ -254,9 +247,8 @@ public class ClientService extends Service implements SdtLogic.ICallBack,
         }
 
         @Override
-        public void setServerAddress(String host, int port) throws RemoteException {
+        public void setServerAddress(String host) throws RemoteException {
             mHost = host;
-            mPort = port;
         }
 
         @Override
@@ -540,13 +532,13 @@ public class ClientService extends Service implements SdtLogic.ICallBack,
         }
 
         @Override
-        public void clearUnreadStatus(int conversationType, String target, int line) throws RemoteException {
-            ProtoLogic.clearUnreadStatus(conversationType, target, line);
+        public boolean clearUnreadStatus(int conversationType, String target, int line) throws RemoteException {
+            return ProtoLogic.clearUnreadStatus(conversationType, target, line);
         }
 
         @Override
-        public void clearUnreadStatusEx(int[] conversationTypes, int[] lines) throws RemoteException {
-            ProtoLogic.clearUnreadStatusEx(conversationTypes, lines);
+        public boolean clearUnreadStatusEx(int[] conversationTypes, int[] lines) throws RemoteException {
+            return ProtoLogic.clearUnreadStatusEx(conversationTypes, lines);
         }
 
         @Override
@@ -557,6 +549,11 @@ public class ClientService extends Service implements SdtLogic.ICallBack,
         @Override
         public void clearMessages(int conversationType, String target, int line) throws RemoteException {
             ProtoLogic.clearMessages(conversationType, target, line);
+        }
+
+        @Override
+        public void clearMessagesEx(int conversationType, String target, int line, long before) throws RemoteException {
+            ProtoLogic.clearMessagesEx(conversationType, target, line, before);
         }
 
         @Override
@@ -593,8 +590,8 @@ public class ClientService extends Service implements SdtLogic.ICallBack,
         }
 
         @Override
-        public void searchUser(String keyword, boolean fuzzy, final ISearchUserCallback callback) throws RemoteException {
-            ProtoLogic.searchUser(keyword, fuzzy, 0, new ProtoLogic.ISearchUserCallback() {
+        public void searchUser(String keyword, int searchType, int page, final ISearchUserCallback callback) throws RemoteException {
+            ProtoLogic.searchUser(keyword, searchType, page, new ProtoLogic.ISearchUserCallback() {
                 @Override
                 public void onSuccess(ProtoUserInfo[] userInfos) {
                     List<UserInfo> out = new ArrayList<>();
@@ -712,9 +709,16 @@ public class ClientService extends Service implements SdtLogic.ICallBack,
             });
         }
 
+        private String getLogPath() {
+            return getCacheDir().getAbsolutePath() + "/log";
+        }
+
         @Override
         public void startLog() throws RemoteException {
             Xlog.setConsoleLogOpen(true);
+            String path = getLogPath();
+            //wflog为ChatSManager中使用判断日志文件，如果修改需要对应修改
+            Xlog.appenderOpen(Xlog.LEVEL_INFO, AppednerModeAsync, path, path, "wflog", null);
         }
 
         @Override
@@ -1459,6 +1463,10 @@ public class ClientService extends Service implements SdtLogic.ICallBack,
             return StnLogic.decodeData(data);
         }
 
+        @Override
+        public String getHost() throws RemoteException {
+            return StnLogic.getHost();
+        }
 
         @Override
         public void createChannel(String channelId, String channelName, String channelPortrait, String desc, String extra, ICreateChannelCallback callback) throws RemoteException {
@@ -1739,6 +1747,7 @@ public class ClientService extends Service implements SdtLogic.ICallBack,
         userInfo.type = protoUserInfo.getType();
         userInfo.friendAlias = protoUserInfo.getFriendAlias();
         userInfo.groupAlias = protoUserInfo.getGroupAlias();
+        userInfo.type = protoUserInfo.getDeleted();
         return userInfo;
     }
 
@@ -1815,6 +1824,7 @@ public class ClientService extends Service implements SdtLogic.ICallBack,
     @Nullable
     @Override
     public IBinder onBind(Intent intent) {
+        this.clientId = intent.getStringExtra("clientId");
         return mBinder;
     }
 
@@ -1901,7 +1911,7 @@ public class ClientService extends Service implements SdtLogic.ICallBack,
         ProtoLogic.setConnectionStatusCallback(ClientService.this);
         ProtoLogic.setReceiveMessageCallback(ClientService.this);
         ProtoLogic.setAuthInfo(userName, userPwd);
-        return ProtoLogic.connect(mHost, mPort);
+        return ProtoLogic.connect(mHost);
     }
 
     private void resetProto() {
@@ -1919,6 +1929,7 @@ public class ClientService extends Service implements SdtLogic.ICallBack,
 
         ProtoLogic.setConnectionStatusCallback(null);
         ProtoLogic.setReceiveMessageCallback(null);
+        ProtoLogic.appWillTerminate();
     }
 
     public void openXlog() {
@@ -1950,10 +1961,10 @@ public class ClientService extends Service implements SdtLogic.ICallBack,
         String logFileName = processName.indexOf(":") == -1 ? "MarsSample" : ("MarsSample_" + processName.substring(processName.indexOf(":") + 1));
 
         if (BuildConfig.DEBUG) {
-            Xlog.appenderOpen(Xlog.LEVEL_VERBOSE, Xlog.AppednerModeAsync, logCache, logPath, logFileName, "");
+            Xlog.appenderOpen(Xlog.LEVEL_VERBOSE, AppednerModeAsync, logCache, logPath, logFileName, "");
             Xlog.setConsoleLogOpen(true);
         } else {
-            Xlog.appenderOpen(Xlog.LEVEL_INFO, Xlog.AppednerModeAsync, logCache, logPath, logFileName, "");
+            Xlog.appenderOpen(Xlog.LEVEL_INFO, AppednerModeAsync, logCache, logPath, logFileName, "");
             Xlog.setConsoleLogOpen(false);
         }
         Log.setLogImp(new Xlog());
@@ -2000,17 +2011,8 @@ public class ClientService extends Service implements SdtLogic.ICallBack,
 
     @Override
     public AppLogic.DeviceInfo getDeviceType() {
-        if (info == null || TextUtils.isEmpty(info.clientid)) {
-            String imei = PreferenceManager.getDefaultSharedPreferences(context).getString("mars_core_uid", "");
-            if (TextUtils.isEmpty(imei)) {
-                imei = Settings.Secure.getString(context.getContentResolver(), Settings.Secure.ANDROID_ID);
-                if (TextUtils.isEmpty(imei)) {
-                    imei = UUID.randomUUID().toString();
-                }
-                imei += System.currentTimeMillis();
-                PreferenceManager.getDefaultSharedPreferences(context).edit().putString("mars_core_uid", imei).commit();
-            }
-            info = new AppLogic.DeviceInfo(imei);
+        if (info == null) {
+            info = new AppLogic.DeviceInfo(clientId);
             info.packagename = context.getPackageName();
             info.device = Build.MANUFACTURER;
             info.deviceversion = Build.VERSION.RELEASE;

@@ -24,8 +24,6 @@ import com.huawei.hms.support.api.client.ResultCallback;
 import com.huawei.hms.support.api.push.HuaweiPush;
 import com.huawei.hms.support.api.push.TokenResult;
 import com.meizu.cloud.pushsdk.util.MzSystemUtils;
-import com.vivo.push.IPushActionListener;
-import com.vivo.push.PushClient;
 import com.xiaomi.mipush.sdk.MiPushClient;
 
 import java.io.BufferedReader;
@@ -37,7 +35,9 @@ import java.lang.reflect.Method;
 import java.util.List;
 import java.util.Properties;
 
+import cn.jpush.android.api.JPushInterface;
 import cn.wildfirechat.remote.ChatManager;
+import cn.wildfirechat.PushType;
 
 /**
  * Created by heavyrain.lee on 2018/2/26.
@@ -72,6 +72,13 @@ public class PushService {
             INST.initXiaomi(gContext);
         }
 
+
+
+        JPushInterface.setDebugMode(false);
+        JPushInterface.init(gContext);
+        JPushInterface.clearAllNotifications(gContext);
+
+
         ProcessLifecycleOwner.get().getLifecycle().addObserver(new LifecycleObserver() {
             @OnLifecycleEvent(Lifecycle.Event.ON_START)
             public void onForeground() {
@@ -83,6 +90,10 @@ public class PushService {
             }
         });
 
+    }
+
+    public  static void setAlias(Context context, int sequence, String uid){
+        JPushInterface.setAlias(context,sequence,uid);
     }
 
     private static void clearNotification(Context context) {
@@ -243,7 +254,7 @@ public class PushService {
                     String pushId = com.meizu.cloud.pushsdk.PushManager.getPushId(context);
                     com.meizu.cloud.pushsdk.PushManager.register(context, String.valueOf(appId), appKey);
                     com.meizu.cloud.pushsdk.PushManager.switchPush(context, String.valueOf(appId), appKey, pushId, 1, true);
-                    ChatManager.Instance().setDeviceToken(pushId, ChatManager.PushType.MeiZu);
+                    ChatManager.Instance().setDeviceToken(pushId, PushType.MEIZU);
                 }
             }
         } catch (Exception e) {
@@ -253,7 +264,7 @@ public class PushService {
     }
 
     private void initVIVO(Context context) {
-
+/*
         // 在当前工程入口函数，建议在Application的onCreate函数中，添加以下代码:
         PushClient.getInstance(context).initialize();
         // 当需要打开推送服务时，调用以下代码:
@@ -263,10 +274,12 @@ public class PushService {
                 Log.d("PushService", "vivo turnOnPush " + state);
                 String regId = PushClient.getInstance(context).getRegId();
                 if (!TextUtils.isEmpty(regId)) {
-                    ChatManager.Instance().setDeviceToken(regId, ChatManager.PushType.VIVO);
+                    ChatManager.Instance().setDeviceToken(regId, PushType.VIVO);
                 }
             }
         });
+
+ */
     }
 
 

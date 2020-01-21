@@ -67,6 +67,30 @@ public class ApiClientVO {
         this.searchfriendfuzzy = v;
     }
 
+    public String onfchatwinnoti = "";
+    public String getOnfchatwinnoti() {
+        return onfchatwinnoti;
+    }
+    public void setOnfchatwinnoti(String v) {
+        this.onfchatwinnoti = v;
+    }
+
+    public String onfgroupuname = "";
+    public String getOnfgroupuname() {
+        return onfgroupuname;
+    }
+    public void setOnfgroupuname(String v) {
+        this.onfgroupuname = v;
+    }
+
+    public String onfgrouplinshi = "";
+    public String getOnfgrouplinshi() {
+        return onfgrouplinshi;
+    }
+    public void setOnfgrouplinshi(String v) {
+        this.onfgrouplinshi = v;
+    }
+
 
 
 }
