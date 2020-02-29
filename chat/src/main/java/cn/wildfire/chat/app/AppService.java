@@ -127,6 +127,7 @@ public class AppService implements AppServiceProvider {
                         dialog.dismiss();
                         Log.e("C:", "网络PHP密码登录出错");
                         Toast.makeText(activity, "网络PHP密码登录出错", Toast.LENGTH_SHORT).show();
+                        callback.onUiFailure(-1, "网络PHP密码登录出错");
                     }
                 });
             }
