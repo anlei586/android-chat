@@ -64,7 +64,7 @@ public class AppService implements AppServiceProvider {
             params.put("clientId", ChatManagerHolder.gChatManager.getClientId());
         } catch (Exception e) {
             e.printStackTrace();
-            callback.onUiFailure(-1, "网络出来问题了。。。");
+            callback.onUiFailure(-1, "网络出现问题了。。。");
             return;
         }
 
@@ -125,9 +125,9 @@ public class AppService implements AppServiceProvider {
                     @Override
                     public void run() {
                         dialog.dismiss();
-                        Log.e("C:", "网络PHP密码登录出错");
-                        Toast.makeText(activity, "网络PHP密码登录出错", Toast.LENGTH_SHORT).show();
-                        callback.onUiFailure(-1, "网络PHP密码登录出错");
+                        Log.e("C:", "网络PHP密码登录出错，请重新输入密码试一下");
+                        Toast.makeText(activity, "网络PHP密码登录出错，请重新输入密码试一下", Toast.LENGTH_SHORT).show();
+                        callback.onUiFailure(-1, "网络PHP密码登录出错，请重新输入密码试一下");
                     }
                 });
             }
@@ -145,7 +145,7 @@ public class AppService implements AppServiceProvider {
 
                         if(responseStr.equals("PWDERROR")) {
                             dialog.dismiss();
-                            Toast.makeText(activity, "用户名或密码有误", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(activity, "用户名或密码有误，请重试", Toast.LENGTH_SHORT).show();
                         }else if(responseStr.equals("OK")) {
                             OKHttpHelper.post(url, params, new SimpleCallback<LoginResult>() {
                                 @Override

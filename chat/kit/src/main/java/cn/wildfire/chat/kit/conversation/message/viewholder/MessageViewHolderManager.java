@@ -3,6 +3,7 @@ package cn.wildfire.chat.kit.conversation.message.viewholder;
 import android.util.Log;
 import android.util.SparseArray;
 
+import cn.wildfire.chat.app.third.redpack.viewholder.RedPackMessageContentViewHolder;
 import cn.wildfire.chat.kit.annotation.LayoutRes;
 import cn.wildfire.chat.kit.annotation.MessageContentType;
 import cn.wildfire.chat.kit.annotation.ReceiveLayoutRes;

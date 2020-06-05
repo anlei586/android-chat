@@ -3,6 +3,7 @@ package cn.wildfire.chat.app.login;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.os.Bundle;
 import android.os.Handler;
 import android.text.Editable;
 import android.util.Log;
@@ -12,6 +13,8 @@ import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import androidx.annotation.Nullable;
 
 import com.afollestad.materialdialogs.MaterialDialog;
 import com.google.gson.Gson;
@@ -73,6 +76,18 @@ public class SMSLoginActivity extends WfcBaseActivity {
     private String phoneNumber;
 
     @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+
+        reg_repasswd_txt.post(new Runnable() {
+            @Override
+            public void run() {
+                reg_repasswd_txt.setFocusableInTouchMode(true);
+            }
+        });
+    }
+
+    @Override
     protected int contentLayout() {
         return R.layout.login_activity_sms;
     }
@@ -106,7 +121,7 @@ public class SMSLoginActivity extends WfcBaseActivity {
         String phoneNumber = phoneNumberEditText.getText().toString().trim();
         String authCode = authCodeEditText.getText().toString().trim();
 
-        loginButton.setEnabled(false);
+        //loginButton.setEnabled(false);
         MaterialDialog dialog = new MaterialDialog.Builder(this)
                 .content("登录中...")
                 .progress(true, 100)
@@ -144,7 +159,7 @@ public class SMSLoginActivity extends WfcBaseActivity {
                 if (isFinishing()) {
                     return;
                 }
-                Toast.makeText(SMSLoginActivity.this, "登录失败：" + code + " " + msg, Toast.LENGTH_SHORT).show();
+                Toast.makeText(SMSLoginActivity.this, "登录失败：" + code + " " + msg + "，请重试" , Toast.LENGTH_SHORT).show();
                 dialog.dismiss();
                 loginButton.setEnabled(true);
             }
@@ -258,7 +273,7 @@ void onRegaccTest(){
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        Toast.makeText(SMSLoginActivity.this, "POST注册出错，请检测网络", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(SMSLoginActivity.this, "POST注册出错，请检测网络或重试", Toast.LENGTH_SHORT).show();
                     }
                 });
                 dialog.dismiss();
@@ -285,6 +300,8 @@ void onRegaccTest(){
                         if(result.code.equals("0")) {
                             phoneNumberEditText.setText(_user);
                             authCodeEditText.setText(_pass);
+                            loginButton.setEnabled(true);
+                            Toast.makeText(SMSLoginActivity.this, "注册成功，您可以登陆了", Toast.LENGTH_SHORT).show();
                             login();
                         }
 

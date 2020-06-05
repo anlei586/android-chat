@@ -91,6 +91,22 @@ public class ApiClientVO {
         this.onfgrouplinshi = v;
     }
 
+    public String sendredpack = "";
+    public String getSendredpack() {
+        return sendredpack;
+    }
+    public void setSendredpack(String v) {
+        this.sendredpack = v;
+    }
+
+    public String openredpack = "";
+    public String getOpenredpack() {
+        return openredpack;
+    }
+    public void setOpenredpack(String v) {
+        this.openredpack = v;
+    }
+
 
 
 }

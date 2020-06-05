@@ -8,6 +8,7 @@ import cn.wildfire.chat.kit.conversation.ext.ExampleAudioInputExt;
 import cn.wildfire.chat.kit.conversation.ext.FileExt;
 import cn.wildfire.chat.kit.conversation.ext.ImageExt;
 import cn.wildfire.chat.kit.conversation.ext.LocationExt;
+import cn.wildfire.chat.kit.conversation.ext.RedpackExt;
 import cn.wildfire.chat.kit.conversation.ext.ShootExt;
 import cn.wildfire.chat.kit.conversation.ext.VoipExt;
 import cn.wildfirechat.model.Conversation;
@@ -35,6 +36,7 @@ public class ConversationExtManager {
         registerExt(FileExt.class);
         registerExt(LocationExt.class);
         //registerExt(ExampleAudioInputExt.class);
+        registerExt(RedpackExt.class);
     }
 
     public void registerExt(Class<? extends ConversationExt> clazz) {

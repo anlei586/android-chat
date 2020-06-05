@@ -18,6 +18,7 @@ public interface MessageContentType {
     int ContentType_Sticker = 7;
     int ContentType_ImageText = 8;
     int ContentType_P_Text = 9;
+    int ContentType_Redpack = 30;
 
     int ContentType_Recall = 80;
 
