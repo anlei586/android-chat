@@ -1,31 +1,30 @@
 package cn.wildfire.chat.app.third.redpack.viewholder;
 
-import android.text.style.ImageSpan;
 import android.util.Log;
 import android.view.View;
+import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
+import androidx.annotation.Nullable;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.gson.Gson;
-import com.lqr.emoji.MoonUtils;
 
 import butterknife.BindView;
 import butterknife.OnClick;
+import butterknife.Optional;
 import cn.wildfire.chat.app.main.model.MainModel;
 import cn.wildfire.chat.app.third.redpack.data.RedPackMsgVO;
 import cn.wildfire.chat.kit.ChatManagerHolder;
 import cn.wildfire.chat.kit.WfcWebViewActivity;
-import cn.wildfire.chat.kit.annotation.EnableContextMenu;
 import cn.wildfire.chat.kit.annotation.MessageContentType;
+import cn.wildfire.chat.kit.annotation.ReceiveLayoutRes;
 import cn.wildfire.chat.kit.annotation.SendLayoutRes;
 import cn.wildfire.chat.kit.conversation.ConversationFragment;
 import cn.wildfire.chat.kit.conversation.message.model.UiMessage;
 import cn.wildfire.chat.kit.conversation.message.viewholder.NormalMessageContentViewHolder;
 import cn.wildfirechat.chat.R;
 import cn.wildfirechat.message.RedpackMessageContent;
-import cn.wildfirechat.message.TextMessageContent;
 
 /*
 @MessageContentType(value = {
@@ -35,9 +34,13 @@ import cn.wildfirechat.message.TextMessageContent;
 
 @MessageContentType(RedpackMessageContent.class)
 @SendLayoutRes(resId = R.layout.conversation_item_redpack_receive)
+@ReceiveLayoutRes(resId = R.layout.conversation_item_redpack_receive)
 public class RedPackMessageContentViewHolder extends NormalMessageContentViewHolder {
-    @BindView(R.id.textView)
+    @BindView(R.id.contentTextView)
     TextView contentTextView;
+
+    @BindView(R.id.imageReadpackBg)
+    ImageView imageReadpackBg;
 
     public RedPackMessageContentViewHolder(ConversationFragment fragment, RecyclerView.Adapter adapter, View itemView){
         super(fragment, adapter, itemView);
@@ -61,20 +64,25 @@ public class RedPackMessageContentViewHolder extends NormalMessageContentViewHol
     public  void onBind(UiMessage message){
         RedpackMessageContent redpackMessage = (RedpackMessageContent) message.message.content;
         RedPackMsgVO obj = coveRPVO();
-        contentTextView.setText(obj.desc);
+        if(obj!=null) {
+            contentTextView.setText(obj.desc);
+        }else{
+            contentTextView.setText("错误红包");
+        }
     }
 
-    @OnClick(R.id.imageReadpack)
+    @OnClick(R.id.imageReadpackBg)
     public void onClick(View view) {
         RedPackMsgVO obj = coveRPVO();
-        //Toast.makeText(fragment.getContext(), "onRedPackMessage click: " + obj.id + "," + obj.desc, Toast.LENGTH_SHORT).show();
+        if(obj!=null) {
+            //Toast.makeText(fragment.getContext(), "onRedPackMessage click: " + obj.id + "," + obj.desc, Toast.LENGTH_SHORT).show();
 
-        String clientId = ChatManagerHolder.gChatManager.getClientId();
-        String userId = ChatManagerHolder.gChatManager.getUserId();
+            String clientId = ChatManagerHolder.gChatManager.getClientId();
+            String userId = ChatManagerHolder.gChatManager.getUserId();
 
-        String url = MainModel.clientConfig.getOpenredpack() + "?cid=" + clientId + "&uid=" + userId + "&rpid="+obj.id;
-        WfcWebViewActivity.loadUrl(fragment.getContext(), "拆红包", url);
-
+            String url = MainModel.clientConfig.getOpenredpack() + "?cid=" + clientId + "&uid=" + userId + "&rpid=" + obj.id;
+            WfcWebViewActivity.loadUrl(fragment.getContext(), "拆红包", url);
+        }
     }
 
 }
