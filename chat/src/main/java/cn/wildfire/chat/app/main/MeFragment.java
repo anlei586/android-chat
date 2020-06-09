@@ -25,6 +25,7 @@ import butterknife.ButterKnife;
 import butterknife.OnClick;
 import cn.wildfire.chat.app.main.model.MainModel;
 import cn.wildfire.chat.app.setting.SettingActivity;
+import cn.wildfire.chat.kit.ChatManagerHolder;
 import cn.wildfire.chat.kit.settings.MessageNotifySettingActivity;
 import cn.wildfire.chat.kit.WfcWebViewActivity;
 import cn.wildfire.chat.kit.third.utils.UIUtils;
@@ -114,7 +115,13 @@ public class MeFragment extends Fragment {
     @OnClick(R.id.notificationOptionItemView)
     void showAdmin(){
         //加载管理页面
-        WfcWebViewActivity.loadUrl(getContext(), UIUtils.getString(R.string.app_admin), MainModel.clientConfig.getApiAdmin());
+
+        String clientId = ChatManagerHolder.gChatManager.getClientId();
+        String userId = ChatManagerHolder.gChatManager.getUserId();
+
+        String url = MainModel.clientConfig.getApiAdmin() + "?cid=" + clientId + "&uid=" + userId;
+
+        WfcWebViewActivity.loadUrl(getContext(), UIUtils.getString(R.string.app_admin), url);
     }
     @OnClick(R.id.passwordOptionItemView)
     void showPasswordOption(){

@@ -13,7 +13,7 @@ android {
     aaptOptions.cruncherEnabled = false
     aaptOptions.useNewCruncher = false
     defaultConfig {
-        applicationId "com.me71s" //com.leliao123  //com.utkfht //易聊me.cai3 //蜜蜂me.mx6 //咪咪com.mm790368    //点聊com.me71s
+        applicationId "com.com5377999" //500网赚网 com.com7767999 // 福利 com.com5377999 //com.leliao123  //com.utkfht //易聊me.cai3 //蜜蜂me.mx6 //咪咪com.mm790368    //点聊com.me71s
         minSdkVersion 16
         targetSdkVersion 28 //当targetversion大于23时，需要使用fileprovider
         versionCode 23

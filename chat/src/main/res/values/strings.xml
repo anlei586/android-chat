@@ -1,11 +1,11 @@
 <resources>
-    <!--  野鸭   乐聊    UT客服   蜜蜂畅聊    咪咪  点聊   易聊   -->
-    <string name="app_name">点聊</string>
+    <!--  野鸭   乐聊    UT客服   蜜蜂畅聊    咪咪  点聊   易聊  福利彩票  500网赚网-->
+    <string name="app_name">福利彩票</string>
 
     <!--我-->
     <string name="my_chat_account">账号:%1$s</string>
     <string name="setting">设置</string>
-    <string name="app_admin">管理员</string>
+    <string name="app_admin">钱包</string>
     <string name="passwordOption">账号与安全</string>
 
     <!--设置-->

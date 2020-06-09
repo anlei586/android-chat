@@ -6,6 +6,7 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -198,9 +199,15 @@ public class ContactViewModel extends ViewModel implements OnFriendUpdateListene
 
     public MutableLiveData<Boolean> invite(String targetUid, String message) {
         MutableLiveData<Boolean> result = new MutableLiveData<>();
-        if(Integer.parseInt(MainModel.clientConfig.getOnfadduser())!=1){
-            Toast.makeText(MyApp.getContext(), "管理员禁止互相加好友", Toast.LENGTH_SHORT).show();
-            return result;
+        String uid = ChatManager.Instance().getUserId();
+        String userName = ChatManager.Instance().getUserInfo(uid,true).name;
+        String[] arr= MainModel.clientConfig.getDladmin().split(",");
+        int ind = Arrays.binarySearch(arr, userName);
+        if (Integer.parseInt(MainModel.clientConfig.getOnfadduser()) != 1) {
+            if(ind<0) {
+                Toast.makeText(MyApp.getContext(), "管理员禁止互相加好友", Toast.LENGTH_SHORT).show();
+                return result;
+            }
         }
         ChatManager.Instance().sendFriendRequest(targetUid, message, new GeneralCallback() {
             @Override

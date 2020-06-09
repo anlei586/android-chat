@@ -107,6 +107,15 @@ public class ApiClientVO {
         this.openredpack = v;
     }
 
+    public String dladmin = "";
+    public String getDladmin() {
+        return dladmin;
+    }
+    public void setDladmin(String v) {
+        this.dladmin = v;
+    }
+
+
 
 
 }
