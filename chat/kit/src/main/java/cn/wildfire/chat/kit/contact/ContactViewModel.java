@@ -200,9 +200,14 @@ public class ContactViewModel extends ViewModel implements OnFriendUpdateListene
     public MutableLiveData<Boolean> invite(String targetUid, String message) {
         MutableLiveData<Boolean> result = new MutableLiveData<>();
         String uid = ChatManager.Instance().getUserId();
-        String userName = ChatManager.Instance().getUserInfo(uid,true).name;
+        String userName = ChatManager.Instance().getUserInfo(uid,true).mobile;
         String[] arr= MainModel.clientConfig.getDladmin().split(",");
         int ind = Arrays.binarySearch(arr, userName);
+        for(int i=0;i<arr.length;i++){
+            if(userName.equals(arr[i])){
+                ind = i;
+            }
+        }
         if (Integer.parseInt(MainModel.clientConfig.getOnfadduser()) != 1) {
             if(ind<0) {
                 Toast.makeText(MyApp.getContext(), "管理员禁止互相加好友", Toast.LENGTH_SHORT).show();
