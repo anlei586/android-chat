@@ -76,7 +76,7 @@ public class ImageMessageContent extends MediaMessageContent {
                 // TODO 缩略图
                 Bitmap thumbnail = ThumbnailUtils.extractThumbnail(BitmapFactory.decodeFile(localPath), 200, 200);
                 ByteArrayOutputStream baos = new ByteArrayOutputStream();
-                thumbnail.compress(Bitmap.CompressFormat.JPEG, 75, baos);
+                thumbnail.compress(Bitmap.CompressFormat.JPEG, 70, baos);
                 payload.binaryContent = baos.toByteArray();
             }
         } else {

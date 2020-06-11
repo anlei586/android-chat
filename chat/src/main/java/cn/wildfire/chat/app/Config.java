@@ -56,7 +56,7 @@ public interface Config {
             PackageManager pm = MyApp._context.getPackageManager();
             info = pm.getApplicationInfo(
                     MyApp._context.getPackageName(), PackageManager.GET_META_DATA);
-            String __sport = (String) info.metaData.get("serverport");
+            String __sport = info.metaData.get("serverport").toString();
             int _flag = __sport.length()<=0?0:Integer.parseInt(__sport);
             String flag = _flag==0?"":Integer.toString(_flag);
             return flag;

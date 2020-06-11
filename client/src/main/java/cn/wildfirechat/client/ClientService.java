@@ -47,6 +47,7 @@ import cn.wildfirechat.message.MediaMessageContent;
 import cn.wildfirechat.message.Message;
 import cn.wildfirechat.message.MessageContent;
 import cn.wildfirechat.message.PTextMessageContent;
+import cn.wildfirechat.message.RedpackMessageContent;
 import cn.wildfirechat.message.SoundMessageContent;
 import cn.wildfirechat.message.StickerMessageContent;
 import cn.wildfirechat.message.TextMessageContent;
@@ -1877,6 +1878,7 @@ public class ClientService extends Service implements SdtLogic.ICallBack,
             mBinder.registerMessageContent(GroupJoinTypeNotificationContent.class.getName());
             mBinder.registerMessageContent(GroupPrivateChatNotificationContent.class.getName());
             mBinder.registerMessageContent(GroupSetManagerChatNotificationContent.class.getName());
+            mBinder.registerMessageContent(RedpackMessageContent.class.getName());
         } catch (RemoteException e) {
             e.printStackTrace();
         }
