@@ -12,6 +12,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="@dimen/option_item_margin_top"
+        android:background="@color/white"
         android:orientation="vertical">
 
         <cn.wildfire.chat.kit.widget.OptionItemView
@@ -21,7 +22,8 @@
             android:layout_marginLeft="8dp"
             android:layout_marginRight="8dp"
             android:clickable="true"
-            app:title="@string/new_message_remind" />
+            app:title="@string/new_message_remind"
+            app:show_arrow_indicator="true" />
     </LinearLayout>
 
     <LinearLayout
@@ -36,6 +38,7 @@
             android:background="@drawable/anleiradiustop"
             android:layout_marginLeft="8dp"
             android:layout_marginRight="8dp"
+            app:show_arrow_indicator="true"
             app:title="关于" />
 
         <cn.wildfire.chat.kit.widget.OptionItemView
@@ -46,6 +49,7 @@
             android:layout_marginRight="8dp"
             android:layout_marginTop="-1dp"
             android:clickable="true"
+            app:show_arrow_indicator="true"
             app:title="诊断" />
 
         <cn.wildfire.chat.kit.widget.OptionItemView
@@ -56,6 +60,7 @@
             android:layout_marginRight="8dp"
             android:layout_marginTop="-1dp"
             android:clickable="true"
+            app:show_arrow_indicator="true"
             app:title="上传日志" />
     </LinearLayout>
 
@@ -65,18 +70,24 @@
         android:layout_marginTop="@dimen/option_item_margin_top"
         android:orientation="vertical">
 
-        <View
-            style="@style/Line"
-            android:layout_marginLeft="15dp"
-            android:layout_marginRight="15dp" />
+        <View style="@style/Line" />
 
-        <cn.wildfire.chat.kit.widget.OptionItemView
+        <TextView
             android:id="@+id/exitOptionItemView"
+
             style="@style/OptionItem"
             android:background="@drawable/anleiradius"
             android:layout_marginLeft="8dp"
             android:layout_marginRight="8dp"
-            app:title="@string/exit" />
+            app:title="@string/exit"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:gravity="center"
+            android:text="@string/exit"
+            android:textColor="@color/black1"
+            android:textSize="16sp" />
+
+        <View style="@style/Line" />
     </LinearLayout>
 
 </LinearLayout>

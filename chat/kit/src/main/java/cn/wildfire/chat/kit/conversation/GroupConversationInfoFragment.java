@@ -2,6 +2,7 @@ package cn.wildfire.chat.kit.conversation;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -95,7 +96,7 @@ public class GroupConversationInfoFragment extends Fragment implements Conversat
     SwitchButton showGroupMemberNickNameSwitchButton;
 
     @BindView(R.id.quitButton)
-    Button quitGroupButton;
+    TextView quitGroupButton;
 
     @BindView(R.id.markGroupLinearLayout)
     LinearLayout markGroupLinearLayout;
@@ -183,7 +184,7 @@ public class GroupConversationInfoFragment extends Fragment implements Conversat
     }
 
     private void observerFavGroupsUpdate() {
-        groupViewModel.getMyGroups().observe(this, listOperateResult -> {
+        groupViewModel.getFavGroups().observe(this, listOperateResult -> {
             if (listOperateResult.isSuccess()) {
                 for (GroupInfo info : listOperateResult.getResult()) {
                     if (groupInfo.target.equals(info.target)) {
@@ -233,12 +234,16 @@ public class GroupConversationInfoFragment extends Fragment implements Conversat
                 if (getActivity() == null || getActivity().isFinishing()) {
                     return;
                 }
-                noticeTextView.setText(announcement.text);
+                if (TextUtils.isEmpty(announcement.text)) {
+                    noticeTextView.setVisibility(View.GONE);
+                } else {
+                    noticeTextView.setText(announcement.text);
+                }
             }
 
             @Override
             public void onUiFailure(int code, String msg) {
-
+                noticeTextView.setVisibility(View.GONE);
             }
         });
     }
@@ -308,7 +313,7 @@ public class GroupConversationInfoFragment extends Fragment implements Conversat
             memberIds = memberIds.subList(0, maxShowMemberCount);
         }
 
-        conversationMemberAdapter = new ConversationMemberAdapter(enableAddMember, enableRemoveMember);
+        conversationMemberAdapter = new ConversationMemberAdapter(conversationInfo, enableAddMember, enableRemoveMember);
         List<UserInfo> members = UserViewModel.getUsers(memberIds, groupInfo.target);
 
         conversationMemberAdapter.setMembers(members);
@@ -386,7 +391,7 @@ public class GroupConversationInfoFragment extends Fragment implements Conversat
                     Intent intent = new Intent(getActivity(), MainActivity.class);
                     startActivity(intent);
                 } else {
-                    Toast.makeText(getActivity(), "退出群组失败", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getActivity(), "解散群组失败", Toast.LENGTH_SHORT).show();
                 }
             });
         } else {

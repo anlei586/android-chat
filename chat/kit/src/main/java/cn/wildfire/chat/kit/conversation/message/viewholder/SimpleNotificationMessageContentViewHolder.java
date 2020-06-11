@@ -13,15 +13,17 @@ import cn.wildfire.chat.kit.annotation.MessageContentType;
 import cn.wildfire.chat.kit.conversation.ConversationFragment;
 import cn.wildfire.chat.kit.conversation.message.model.UiMessage;
 import cn.wildfirechat.chat.R;
+import cn.wildfirechat.message.AddParticipantsMessageContent;
 import cn.wildfirechat.message.notification.AddGroupMemberNotificationContent;
 import cn.wildfirechat.message.notification.ChangeGroupNameNotificationContent;
 import cn.wildfirechat.message.notification.ChangeGroupPortraitNotificationContent;
 import cn.wildfirechat.message.notification.CreateGroupNotificationContent;
 import cn.wildfirechat.message.notification.DismissGroupNotificationContent;
 import cn.wildfirechat.message.notification.GroupJoinTypeNotificationContent;
+import cn.wildfirechat.message.notification.GroupMuteMemberNotificationContent;
 import cn.wildfirechat.message.notification.GroupMuteNotificationContent;
 import cn.wildfirechat.message.notification.GroupPrivateChatNotificationContent;
-import cn.wildfirechat.message.notification.GroupSetManagerChatNotificationContent;
+import cn.wildfirechat.message.notification.GroupSetManagerNotificationContent;
 import cn.wildfirechat.message.notification.KickoffGroupMemberNotificationContent;
 import cn.wildfirechat.message.notification.ModifyGroupAliasNotificationContent;
 import cn.wildfirechat.message.notification.NotificationMessageContent;
@@ -46,7 +48,9 @@ import cn.wildfirechat.message.notification.TransferGroupOwnerNotificationConten
         GroupMuteNotificationContent.class,
         GroupPrivateChatNotificationContent.class,
         GroupJoinTypeNotificationContent.class,
-        GroupSetManagerChatNotificationContent.class
+        GroupSetManagerNotificationContent.class,
+        GroupMuteMemberNotificationContent.class,
+        AddParticipantsMessageContent.class
         // TODO add more
 
 })

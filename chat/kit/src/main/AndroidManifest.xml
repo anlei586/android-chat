@@ -124,7 +124,7 @@
         <activity
             android:name="cn.wildfire.chat.kit.mm.MMPreviewActivity"
             android:theme="@style/AppTheme.FullScreen" />
-        <activity android:name="cn.wildfire.chat.kit.voip.SingleVoipCallActivity">
+        <activity android:name="cn.wildfire.chat.kit.voip.SingleCallActivity">
             <intent-filter>
                 <action android:name="${applicationId}.kit.voip.single" />
                 <category android:name="android.intent.category.DEFAULT" />
@@ -201,6 +201,7 @@
         <activity android:name="cn.wildfire.chat.kit.channel.ChannelInfoActivity" />
         <activity
             android:name="cn.wildfire.chat.app.main.MainActivity"
+            android:label=""
             android:launchMode="singleTask">
             <intent-filter>
                 <action android:name="${applicationId}.main" />
@@ -252,6 +253,14 @@
         <activity
             android:name="cn.wildfire.chat.kit.contact.pick.PickContactActivity"
             android:label="联系人选择" />
+        <activity
+            android:name="cn.wildfire.chat.kit.voip.MultiCallActivity"
+            android:screenOrientation="portrait">
+            <intent-filter>
+                <action android:name="${applicationId}.kit.voip.multi" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
 
         <provider
             android:name="androidx.core.content.FileProvider"
@@ -263,6 +272,6 @@
                 android:resource="@xml/provider_paths" />
         </provider>
         <service android:name="cn.wildfire.chat.kit.voip.FloatingVoipService" />
-
+        <service android:name="cn.wildfire.chat.kit.voip.VoipCallService" />
     </application>
 </manifest>

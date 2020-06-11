@@ -47,6 +47,8 @@ public interface MessageContentType {
     int CONTENT_TYPE_CHANGE_PRIVATECHAT = 115;
     int CONTENT_TYPE_CHANGE_SEARCHABLE = 116;
     int CONTENT_TYPE_SET_MANAGER = 117;
+    //禁言/取消禁言群成员的通知消息
+    int CONTENT_TYPE_MUTE_MEMBER = 118;
 
     int ContentType_Call_Start = 400;
     int ContentType_Call_End = 402;
@@ -54,6 +56,11 @@ public interface MessageContentType {
     int ContentType_Call_Signal = 403;
     int ContentType_Call_Modify = 404;
     int ContentType_Call_Accept_T = 405;
+    int ContentType_Call_Add_Participant = 406;
+    int ContentType_CALL_MUTE_VIDEO = 407;
+
+    int MESSAGE_CONTENT_TYPE_FEED = 501;
+    int MESSAGE_CONTENT_TYPE_FEED_COMMENT = 502;
 
     //自定义消息type要做1000以上
 }

@@ -17,6 +17,7 @@ import cn.wildfire.chat.kit.conversation.ConversationFragment;
 import cn.wildfire.chat.kit.conversation.message.model.UiMessage;
 import cn.wildfirechat.chat.R;
 import cn.wildfirechat.message.CallStartMessageContent;
+import cn.wildfirechat.model.Conversation;
 
 @MessageContentType(CallStartMessageContent.class)
 @ReceiveLayoutRes(resId = R.layout.conversation_item_voip_receive)
@@ -34,23 +35,17 @@ public class VoipMessageViewHolder extends NormalMessageContentViewHolder {
     @Override
     public void onBind(UiMessage message) {
         CallStartMessageContent content = (CallStartMessageContent) message.message.content;
-        if (content.getStatus() == 0) {
-            textView.setText("对方未接听");
-        } else if (content.getStatus() == 1) {
-            textView.setText("通话中");
-        } else {
+        if (content.getConnectTime() > 0 && content.getEndTime() > 0) {
             String text;
-            if (content.getConnectTime() > 0) {
-                long duration = (content.getEndTime() - content.getConnectTime()) / 1000;
-                if (duration > 3600) {
-                    text = String.format("通话时长 %d:%02d:%02d", duration / 3600, (duration % 3600) / 60, (duration % 60));
-                } else {
-                    text = String.format("通话时长 %02d:%02d", duration / 60, (duration % 60));
-                }
+            long duration = (content.getEndTime() - content.getConnectTime()) / 1000;
+            if (duration > 3600) {
+                text = String.format("通话时长 %d:%02d:%02d", duration / 3600, (duration % 3600) / 60, (duration % 60));
             } else {
-                text = "对方未接听";
+                text = String.format("通话时长 %02d:%02d", duration / 60, (duration % 60));
             }
             textView.setText(text);
+        } else {
+            textView.setText("对方未接听");
         }
     }
 
@@ -59,6 +54,11 @@ public class VoipMessageViewHolder extends NormalMessageContentViewHolder {
         if (((CallStartMessageContent) message.message.content).getStatus() == 1) {
             return;
         }
-        WfcUIKit.onCall(fragment.getContext(), message.message.conversation.target, true, false);
+        CallStartMessageContent callStartMessageContent = (CallStartMessageContent) message.message.content;
+        if (message.message.conversation.type == Conversation.ConversationType.Single) {
+            WfcUIKit.singleCall(fragment.getContext(), message.message.conversation.target, callStartMessageContent.isAudioOnly());
+        } else {
+            fragment.pickGroupMemberToVoipChat(callStartMessageContent.isAudioOnly());
+        }
     }
 }

@@ -30,6 +30,8 @@ import com.tencent.mars.xlog.Xlog;
 import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -43,7 +45,6 @@ import cn.wildfirechat.message.FileMessageContent;
 import cn.wildfirechat.message.ImageMessageContent;
 import cn.wildfirechat.message.ImageTextMessageContent;
 import cn.wildfirechat.message.LocationMessageContent;
-import cn.wildfirechat.message.MediaMessageContent;
 import cn.wildfirechat.message.Message;
 import cn.wildfirechat.message.MessageContent;
 import cn.wildfirechat.message.PTextMessageContent;
@@ -65,9 +66,10 @@ import cn.wildfirechat.message.notification.ChangeGroupPortraitNotificationConte
 import cn.wildfirechat.message.notification.CreateGroupNotificationContent;
 import cn.wildfirechat.message.notification.DismissGroupNotificationContent;
 import cn.wildfirechat.message.notification.GroupJoinTypeNotificationContent;
+import cn.wildfirechat.message.notification.GroupMuteMemberNotificationContent;
 import cn.wildfirechat.message.notification.GroupMuteNotificationContent;
 import cn.wildfirechat.message.notification.GroupPrivateChatNotificationContent;
-import cn.wildfirechat.message.notification.GroupSetManagerChatNotificationContent;
+import cn.wildfirechat.message.notification.GroupSetManagerNotificationContent;
 import cn.wildfirechat.message.notification.KickoffGroupMemberNotificationContent;
 import cn.wildfirechat.message.notification.ModifyGroupAliasNotificationContent;
 import cn.wildfirechat.message.notification.NotificationMessageContent;
@@ -99,7 +101,9 @@ import cn.wildfirechat.model.ProtoGroupMember;
 import cn.wildfirechat.model.ProtoGroupSearchResult;
 import cn.wildfirechat.model.ProtoMessage;
 import cn.wildfirechat.model.ProtoMessageContent;
+import cn.wildfirechat.model.ProtoReadEntry;
 import cn.wildfirechat.model.ProtoUserInfo;
+import cn.wildfirechat.model.ReadEntry;
 import cn.wildfirechat.model.UnreadCount;
 import cn.wildfirechat.model.UserInfo;
 import cn.wildfirechat.remote.RecoverReceiver;
@@ -119,15 +123,15 @@ import static com.tencent.mars.xlog.Xlog.AppednerModeAsync;
  */
 
 public class ClientService extends Service implements SdtLogic.ICallBack,
-        AppLogic.ICallBack,
-        ProtoLogic.IConnectionStatusCallback,
-        ProtoLogic.IReceiveMessageCallback,
-        ProtoLogic.IUserInfoUpdateCallback,
-        ProtoLogic.ISettingUpdateCallback,
-        ProtoLogic.IFriendRequestListUpdateCallback,
-        ProtoLogic.IFriendListUpdateCallback,
-        ProtoLogic.IGroupInfoUpdateCallback,
-        ProtoLogic.IChannelInfoUpdateCallback, ProtoLogic.IGroupMembersUpdateCallback {
+    AppLogic.ICallBack,
+    ProtoLogic.IConnectionStatusCallback,
+    ProtoLogic.IReceiveMessageCallback,
+    ProtoLogic.IUserInfoUpdateCallback,
+    ProtoLogic.ISettingUpdateCallback,
+    ProtoLogic.IFriendRequestListUpdateCallback,
+    ProtoLogic.IFriendListUpdateCallback,
+    ProtoLogic.IGroupInfoUpdateCallback,
+    ProtoLogic.IChannelInfoUpdateCallback, ProtoLogic.IGroupMembersUpdateCallback {
     private Map<Integer, Class<? extends MessageContent>> contentMapper = new HashMap<>();
 
     private int mConnectionStatus;
@@ -165,6 +169,9 @@ public class ClientService extends Service implements SdtLogic.ICallBack,
         @Override
         public boolean connect(String userName, String userPwd) throws RemoteException {
             if (logined) {
+                if (!accountInfo.userName.equals(userName)) {
+                    Log.e("ClientService", "Error, 错误，且户用户时一定要先disconnect，再connect");
+                }
                 return false;
             }
 
@@ -221,7 +228,7 @@ public class ClientService extends Service implements SdtLogic.ICallBack,
         }
 
         @Override
-        public void disconnect(boolean clearSession) throws RemoteException {
+        public void disconnect(boolean disablePush, boolean clearSession) throws RemoteException {
             onConnectionStatusChanged(ConnectionStatusLogout);
 
             logined = false;
@@ -231,8 +238,14 @@ public class ClientService extends Service implements SdtLogic.ICallBack,
 //            if (mars::stn::getConnectionStatus() != mars::stn::kConnectionStatusConnected && mars::stn::getConnectionStatus() != mars::stn::kConnectionStatusReceiveing) {
 //                [self destroyMars];
 //            }
+            int flag = 0;
+            if (clearSession) {
+                flag = 8;
+            } else if (disablePush) {
+                flag = 1;
+            }
 
-            ProtoLogic.disconnect(clearSession ? 8 : 0);
+            ProtoLogic.disconnect(flag);
 
             resetProto();
         }
@@ -256,19 +269,30 @@ public class ClientService extends Service implements SdtLogic.ICallBack,
         public void registerMessageContent(String msgContentCls) throws RemoteException {
             try {
                 Class cls = Class.forName(msgContentCls);
+                Constructor c = cls.getConstructor();
+                if (c.getModifiers() != Modifier.PUBLIC) {
+                    throw new IllegalArgumentException("the default constructor of your custom messageContent class should be public");
+                }
                 ContentTag tag = (ContentTag) cls.getAnnotation(ContentTag.class);
                 if (tag != null) {
                     Class curClazz = contentMapper.get(tag.type());
                     if (curClazz != null && !curClazz.equals(cls)) {
-                        throw new IllegalArgumentException("messageContent type duplicate");
+                        throw new IllegalArgumentException("messageContent type duplicate " + msgContentCls);
                     }
                     contentMapper.put(tag.type(), cls);
-                    ProtoLogic.registerMessageFlag(tag.type(), tag.flag().getValue());
+                    try {
+                        ProtoLogic.registerMessageFlag(tag.type(), tag.flag().getValue());
+                    } catch (Throwable e) {
+                        // ref to: https://github.com/Tencent/mars/issues/334
+                        ProtoLogic.registerMessageFlag(tag.type(), tag.flag().getValue());
+                    }
                 } else {
                     throw new IllegalStateException("ContentTag annotation must be set!");
                 }
             } catch (ClassNotFoundException e) {
-                e.printStackTrace();
+                throw new IllegalArgumentException("custom messageContent class can not found: " + msgContentCls);
+            } catch (NoSuchMethodException e) {
+                throw new IllegalArgumentException("custom messageContent class must have a default constructor");
             }
         }
 
@@ -288,65 +312,80 @@ public class ClientService extends Service implements SdtLogic.ICallBack,
             protoMessage.setContent(payload.toProtoContent());
             protoMessage.setMessageId(msg.messageId);
             protoMessage.setDirection(msg.direction.ordinal());
-            protoMessage.setStatus(msg.status.ordinal());
+            protoMessage.setStatus(msg.status.value());
             protoMessage.setMessageUid(msg.messageUid);
             protoMessage.setTimestamp(msg.serverTime);
 
             return protoMessage;
         }
 
+        private class SendMessageCallback implements ProtoLogic.ISendMessageCallback {
+            private ISendMessageCallback callback;
+
+            SendMessageCallback(ISendMessageCallback callback) {
+                this.callback = callback;
+            }
+
+            @Override
+            public void onSuccess(long messageUid, long timestamp) {
+                try {
+                    callback.onSuccess(messageUid, timestamp);
+                } catch (RemoteException e) {
+                    e.printStackTrace();
+                }
+            }
+
+            @Override
+            public void onFailure(int errorCode) {
+                try {
+                    callback.onFailure(errorCode);
+                } catch (RemoteException e) {
+                    e.printStackTrace();
+                }
+            }
+
+            @Override
+            public void onPrepared(long messageId, long savedTime) {
+                try {
+                    callback.onPrepared(messageId, savedTime);
+                } catch (RemoteException e) {
+                    e.printStackTrace();
+                }
+            }
+
+            @Override
+            public void onProgress(long uploaded, long total) {
+                try {
+                    callback.onProgress(uploaded, total);
+                } catch (RemoteException e) {
+                    e.printStackTrace();
+                }
+            }
+
+            @Override
+            public void onMediaUploaded(String remoteUrl) {
+                try {
+                    callback.onMediaUploaded(remoteUrl);
+                } catch (RemoteException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+
+        @Override
+        public void sendSavedMessage(Message msg, int expireDuration, ISendMessageCallback callback) throws RemoteException {
+            ProtoLogic.sendMessageEx(msg.messageId, expireDuration, new SendMessageCallback(callback));
+        }
+
         @Override
         public void send(cn.wildfirechat.message.Message msg, final ISendMessageCallback callback, int expireDuration) throws RemoteException {
 
+            msg.messageId = 0;
+            msg.messageUid = 0;
             msg.sender = userId;
             ProtoMessage protoMessage = convertMessage(msg);
 
-            ProtoLogic.sendMessage(protoMessage, expireDuration, new ProtoLogic.ISendMessageCallback() {
-                @Override
-                public void onSuccess(long messageUid, long timestamp) {
-                    try {
-                        callback.onSuccess(messageUid, timestamp);
-                    } catch (RemoteException e) {
-                        e.printStackTrace();
-                    }
-                }
-
-                @Override
-                public void onFailure(int errorCode) {
-                    try {
-                        callback.onFailure(errorCode);
-                    } catch (RemoteException e) {
-                        e.printStackTrace();
-                    }
-                }
-
-                @Override
-                public void onPrepared(long messageId, long savedTime) {
-                    try {
-                        callback.onPrepared(messageId, savedTime);
-                    } catch (RemoteException e) {
-                        e.printStackTrace();
-                    }
-                }
-
-                @Override
-                public void onProgress(long uploaded, long total) {
-                    try {
-                        callback.onProgress(uploaded, total);
-                    } catch (RemoteException e) {
-                        e.printStackTrace();
-                    }
-                }
-
-                @Override
-                public void onMediaUploaded(String remoteUrl) {
-                    try {
-                        callback.onMediaUploaded(remoteUrl);
-                    } catch (RemoteException e) {
-                        e.printStackTrace();
-                    }
-                }
-            });
+            ProtoLogic.sendMessage(protoMessage, expireDuration, new SendMessageCallback(callback));
         }
 
         @Override
@@ -421,58 +460,55 @@ public class ClientService extends Service implements SdtLogic.ICallBack,
         @Override
         public List<cn.wildfirechat.message.Message> getMessages(Conversation conversation, long fromIndex, boolean before, int count, String withUser) throws RemoteException {
             ProtoMessage[] protoMessages = ProtoLogic.getMessages(conversation.type.ordinal(), conversation.target, conversation.line, fromIndex, before, count, withUser);
-            List<cn.wildfirechat.message.Message> out = new ArrayList<>();
-            for (ProtoMessage protoMessage : protoMessages) {
-                cn.wildfirechat.message.Message msg = convertProtoMessage(protoMessage);
-                if (msg != null) {
-                    out.add(msg);
-                }
+            SafeIPCMessageEntry entry = buildSafeIPCMessages(protoMessages, 0, before);
+            if (entry.messages.size() != protoMessages.length) {
+                android.util.Log.e(TAG, "getMessages, drop messages " + (protoMessages.length - entry.messages.size()));
             }
-            return out;
-        }
-
-        private List<Message> buildSafeIPCMessages(ProtoMessage[] messages, boolean before) {
-            List<Message> msgs = new ArrayList<>();
-            int totalLength = 0;
-            int messageContentLength;
-            if (messages == null || messages.length == 0) {
-                return msgs;
-            }
-
-            for (int i = 0; i < messages.length; i++) {
-                ProtoMessage pmsg;
-                if (before) {
-                    pmsg = messages[messages.length - i - 1];
-                } else {
-                    pmsg = messages[i];
-                }
-                messageContentLength = getProtoMessageLength(pmsg);
-                if (messageContentLength > MAX_IPC_SIZE) {
-                    android.util.Log.e("ClientService", "drop message, too large: " + pmsg.getMessageUid() + " " + messageContentLength);
-                    continue;
-                }
-                totalLength += messageContentLength;
-                if (totalLength <= MAX_IPC_SIZE) {
-                    if (before) {
-                        msgs.add(0, convertProtoMessage(pmsg));
-                    } else {
-                        msgs.add(convertProtoMessage(pmsg));
-                    }
-                }
-            }
-            return msgs;
+            return entry.messages;
         }
 
         @Override
         public List<Message> getMessagesEx(int[] conversationTypes, int[] lines, int[] contentTypes, long fromIndex, boolean before, int count, String withUser) throws RemoteException {
             ProtoMessage[] protoMessages = ProtoLogic.getMessagesEx(conversationTypes, lines, contentTypes, fromIndex, before, count, withUser);
-            return buildSafeIPCMessages(protoMessages, before);
+            SafeIPCMessageEntry entry = buildSafeIPCMessages(protoMessages, 0, before);
+            if (entry.messages.size() != protoMessages.length) {
+                android.util.Log.e(TAG, "getMessagesEx, drop messages " + (protoMessages.length - entry.messages.size()));
+            }
+            return entry.messages;
         }
 
         @Override
         public List<Message> getMessagesEx2(int[] conversationTypes, int[] lines, int messageStatus, long fromIndex, boolean before, int count, String withUser) throws RemoteException {
             ProtoMessage[] protoMessages = ProtoLogic.getMessagesEx2(conversationTypes, lines, messageStatus, fromIndex, before, count, withUser);
-            return buildSafeIPCMessages(protoMessages, before);
+            SafeIPCMessageEntry entry = buildSafeIPCMessages(protoMessages, 0, before);
+            if (entry.messages.size() != protoMessages.length) {
+                android.util.Log.e(TAG, "getMessagesEx2, drop messages " + (protoMessages.length - entry.messages.size()));
+            }
+            return entry.messages;
+        }
+
+        @Override
+        public void getMessagesInTypesAsync(Conversation conversation, int[] contentTypes, long fromIndex, boolean before, int count, String withUser, IGetMessageCallback callback) throws RemoteException {
+            ProtoMessage[] protoMessages = ProtoLogic.getMessagesInTypes(conversation.type.ordinal(), conversation.target, conversation.line, contentTypes, fromIndex, before, count, withUser);
+            safeMessagesCallback(protoMessages, before, callback);
+        }
+
+        @Override
+        public void getMessagesAsync(Conversation conversation, long fromIndex, boolean before, int count, String withUser, IGetMessageCallback callback) throws RemoteException {
+            ProtoMessage[] protoMessages = ProtoLogic.getMessages(conversation.type.ordinal(), conversation.target, conversation.line, fromIndex, before, count, withUser);
+            safeMessagesCallback(protoMessages, before, callback);
+        }
+
+        @Override
+        public void getMessagesExAsync(int[] conversationTypes, int[] lines, int[] contentTypes, long fromIndex, boolean before, int count, String withUser, IGetMessageCallback callback) throws RemoteException {
+            ProtoMessage[] protoMessages = ProtoLogic.getMessagesEx(conversationTypes, lines, contentTypes, fromIndex, before, count, withUser);
+            safeMessagesCallback(protoMessages, before, callback);
+        }
+
+        @Override
+        public void getMessagesEx2Async(int[] conversationTypes, int[] lines, int messageStatus, long fromIndex, boolean before, int count, String withUser, IGetMessageCallback callback) throws RemoteException {
+            ProtoMessage[] protoMessages = ProtoLogic.getMessagesEx2(conversationTypes, lines, messageStatus, fromIndex, before, count, withUser);
+            safeMessagesCallback(protoMessages, before, callback);
         }
 
         @Override
@@ -481,7 +517,13 @@ public class ClientService extends Service implements SdtLogic.ICallBack,
                 @Override
                 public void onSuccess(ProtoMessage[] list) {
                     try {
-                        callback.onSuccess(buildSafeIPCMessages(list, false));
+                        SafeIPCMessageEntry entry;
+                        int startIndex = 0;
+                        do {
+                            entry = buildSafeIPCMessages(list, startIndex, false);
+                            callback.onSuccess(entry.messages);
+                            startIndex = entry.index + 1;
+                        } while (entry.index > 0 && entry.index < list.length - 1);
                     } catch (RemoteException e) {
                         e.printStackTrace();
                     }
@@ -497,6 +539,7 @@ public class ClientService extends Service implements SdtLogic.ICallBack,
                 }
             });
         }
+
 
         @Override
         public cn.wildfirechat.message.Message getMessage(long messageId) throws RemoteException {
@@ -516,10 +559,16 @@ public class ClientService extends Service implements SdtLogic.ICallBack,
         }
 
         @Override
-        public boolean updateMessage(cn.wildfirechat.message.Message message) throws RemoteException {
+        public boolean updateMessageContent(cn.wildfirechat.message.Message message) throws RemoteException {
             ProtoMessage protoMessage = convertMessage(message);
             ProtoLogic.updateMessageContent(protoMessage);
             return false;
+        }
+
+        @Override
+        public boolean updateMessageStatus(long messageId, int messageStatus) throws RemoteException {
+            ProtoLogic.updateMessageStatus(messageId, messageStatus);
+            return true;
         }
 
         @Override
@@ -561,7 +610,7 @@ public class ClientService extends Service implements SdtLogic.ICallBack,
         public void setMediaMessagePlayed(long messageId) {
             try {
                 Message message = getMessage(messageId);
-                if (message == null || message.direction == MessageDirection.Send || !(message.content instanceof MediaMessageContent)) {
+                if (message == null) {
                     return;
                 }
                 ProtoLogic.setMediaMessagePlayed(messageId);
@@ -576,8 +625,8 @@ public class ClientService extends Service implements SdtLogic.ICallBack,
         }
 
         @Override
-        public void setConversationTop(int conversationType, String target, int line, boolean top) throws RemoteException {
-            setUserSetting(ConversationTop, conversationType + "-" + line + "-" + target, top ? "1" : "0", null);
+        public void setConversationTop(int conversationType, String target, int line, boolean top, IGeneralCallback callback) throws RemoteException {
+            setUserSetting(ConversationTop, conversationType + "-" + line + "-" + target, top ? "1" : "0", callback);
         }
 
         @Override
@@ -586,8 +635,23 @@ public class ClientService extends Service implements SdtLogic.ICallBack,
         }
 
         @Override
-        public void setConversationSilent(int conversationType, String target, int line, boolean silent) throws RemoteException {
-            setUserSetting(ConversationSilent, conversationType + "-" + line + "-" + target, silent ? "1" : "0", null);
+        public void setConversationSilent(int conversationType, String target, int line, boolean silent, IGeneralCallback callback) throws RemoteException {
+            setUserSetting(ConversationSilent, conversationType + "-" + line + "-" + target, silent ? "1" : "0", callback);
+        }
+
+        @Override
+        public Map getConversationRead(int conversationType, String target, int line) throws RemoteException {
+            return ProtoLogic.GetConversationRead(conversationType, target, line);
+        }
+
+        @Override
+        public Map getMessageDelivery(int conversationType, String target) throws RemoteException {
+            return ProtoLogic.GetDelivery(conversationType, target);
+        }
+
+        @Override
+        public void setConversationTimestamp(int conversationType, String target, int line, long timestamp) throws RemoteException {
+            ProtoLogic.setConversationTimestamp(conversationType, target, line, timestamp);
         }
 
         @Override
@@ -774,6 +838,11 @@ public class ClientService extends Service implements SdtLogic.ICallBack,
         }
 
         @Override
+        public String getFriendExtra(String userId) throws RemoteException {
+            return ProtoLogic.getFriendExtra(userId);
+        }
+
+        @Override
         public void setFriendAlias(String userId, String alias, IGeneralCallback callback) throws RemoteException {
             ProtoLogic.setFriendAlias(userId, alias, new ProtoLogic.IGeneralCallback() {
                 @Override
@@ -857,8 +926,8 @@ public class ClientService extends Service implements SdtLogic.ICallBack,
         }
 
         @Override
-        public void handleFriendRequest(String userId, boolean accept, final IGeneralCallback callback) throws RemoteException {
-            ProtoLogic.handleFriendRequest(userId, accept, new ProtoLogic.IGeneralCallback() {
+        public void handleFriendRequest(String userId, boolean accept, String extra, final IGeneralCallback callback) throws RemoteException {
+            ProtoLogic.handleFriendRequest(userId, accept, extra, new ProtoLogic.IGeneralCallback() {
                 @Override
                 public void onSuccess() {
                     try {
@@ -1455,6 +1524,34 @@ public class ClientService extends Service implements SdtLogic.ICallBack,
         }
 
         @Override
+        public void muteGroupMember(String groupId, boolean isSet, List<String> memberIds, int[] notifyLines, MessagePayload notifyMsg, IGeneralCallback callback) throws RemoteException {
+            String[] memberArray = new String[memberIds.size()];
+            for (int i = 0; i < memberIds.size(); i++) {
+                memberArray[i] = memberIds.get(i);
+            }
+
+            ProtoLogic.muteGroupMember(groupId, isSet, memberArray, notifyLines, notifyMsg == null ? null : notifyMsg.toProtoContent(), new ProtoLogic.IGeneralCallback() {
+                @Override
+                public void onSuccess() {
+                    try {
+                        callback.onSuccess();
+                    } catch (RemoteException e) {
+                        e.printStackTrace();
+                    }
+                }
+
+                @Override
+                public void onFailure(int i) {
+                    try {
+                        callback.onFailure(i);
+                    } catch (RemoteException e) {
+                        e.printStackTrace();
+                    }
+                }
+            });
+        }
+
+        @Override
         public byte[] encodeData(byte[] data) throws RemoteException {
             return StnLogic.encodeData(data);
         }
@@ -1630,6 +1727,52 @@ public class ClientService extends Service implements SdtLogic.ICallBack,
         }
 
         @Override
+        public void kickoffPCClient(String pcClientId, IGeneralCallback callback) throws RemoteException {
+            ProtoLogic.kickoffPCClient(pcClientId, new ProtoLogic.IGeneralCallback() {
+                @Override
+                public void onSuccess() {
+                    try {
+                        callback.onSuccess();
+                    } catch (RemoteException e) {
+                        e.printStackTrace();
+                    }
+                }
+
+                @Override
+                public void onFailure(int i) {
+                    try {
+                        callback.onFailure(i);
+                    } catch (RemoteException e) {
+                        e.printStackTrace();
+                    }
+                }
+            });
+        }
+
+        @Override
+        public void getApplicationId(String applicationId, IGeneralCallback2 callback) throws RemoteException {
+            ProtoLogic.getApplicationToken(applicationId, new ProtoLogic.IGeneralCallback2() {
+                @Override
+                public void onSuccess(String s) {
+                    try {
+                        callback.onSuccess(s);
+                    } catch (RemoteException e) {
+                        e.printStackTrace();
+                    }
+                }
+
+                @Override
+                public void onFailure(int i) {
+                    try {
+                        callback.onFailure(i);
+                    } catch (RemoteException e) {
+                        e.printStackTrace();
+                    }
+                }
+            });
+        }
+
+        @Override
         public int getMessageCount(Conversation conversation) throws RemoteException {
             return ProtoLogic.getMessageCount(conversation.type.getValue(), conversation.target, conversation.line);
         }
@@ -1644,6 +1787,15 @@ public class ClientService extends Service implements SdtLogic.ICallBack,
             ProtoLogic.commitTransaction();
         }
 
+        @Override
+        public boolean isCommercialServer() throws RemoteException {
+            return ProtoLogic.isCommercialServer();
+        }
+
+        @Override
+        public boolean isReceiptEnabled() throws RemoteException {
+            return ProtoLogic.isReceiptEnabled();
+        }
     }
 
     private ChannelInfo converProtoChannelInfo(ProtoChannelInfo protoChannelInfo) {
@@ -1748,7 +1900,7 @@ public class ClientService extends Service implements SdtLogic.ICallBack,
         userInfo.type = protoUserInfo.getType();
         userInfo.friendAlias = protoUserInfo.getFriendAlias();
         userInfo.groupAlias = protoUserInfo.getGroupAlias();
-        userInfo.type = protoUserInfo.getDeleted();
+        userInfo.deleted = protoUserInfo.getDeleted();
         return userInfo;
     }
 
@@ -1757,9 +1909,8 @@ public class ClientService extends Service implements SdtLogic.ICallBack,
         if (cls != null) {
             try {
                 return cls.newInstance();
-            } catch (InstantiationException e) {
-                e.printStackTrace();
-            } catch (IllegalAccessException e) {
+            } catch (Exception e) {
+                android.util.Log.e(TAG, "create message content instance failed, fall back to UnknownMessageContent, the message content class must have a default constructor. " + type);
                 e.printStackTrace();
             }
         }
@@ -1805,6 +1956,7 @@ public class ClientService extends Service implements SdtLogic.ICallBack,
             }
             msg.content.extra = payload.extra;
         } catch (Exception e) {
+            android.util.Log.e(TAG, "decode message error, fallback to unknownMessageContent. " + protoMessage.getContent().getType());
             e.printStackTrace();
             if (msg.content.getPersistFlag() == PersistFlag.Persist || msg.content.getPersistFlag() == PersistFlag.Persist_And_Count) {
                 msg.content = new UnknownMessageContent();
@@ -1839,6 +1991,7 @@ public class ClientService extends Service implements SdtLogic.ICallBack,
     public void onCreate() {
         super.onCreate();
 
+        Mars.loadDefaultMarsLibrary();
         AppLogic.setCallBack(this);
         SdtLogic.setCallBack(this);
         // Initialize the Mars PlatformComm
@@ -1879,6 +2032,9 @@ public class ClientService extends Service implements SdtLogic.ICallBack,
             mBinder.registerMessageContent(GroupPrivateChatNotificationContent.class.getName());
             mBinder.registerMessageContent(GroupSetManagerChatNotificationContent.class.getName());
             mBinder.registerMessageContent(RedpackMessageContent.class.getName());
+            mBinder.registerMessageContent(GroupSetManagerNotificationContent.class.getName());
+            mBinder.registerMessageContent(GroupMuteMemberNotificationContent.class.getName());
+
         } catch (RemoteException e) {
             e.printStackTrace();
         }
@@ -2028,6 +2184,7 @@ public class ClientService extends Service implements SdtLogic.ICallBack,
             }
 
             info.language = locale.getLanguage();
+            info.language = TextUtils.isDigitsOnly(info.language) ? "zh_CN" : info.language;
         }
         return info;
     }
@@ -2090,14 +2247,83 @@ public class ClientService extends Service implements SdtLogic.ICallBack,
         });
     }
 
-    private void onReceiveMessageInternal(List<Message> messages, boolean hasMore) {
+    @Override
+    public void onDeleteMessage(long messageUid) {
+        handler.post(() -> {
+            int receiverCount = onReceiveMessageListeners.beginBroadcast();
+            IOnReceiveMessageListener listener;
+            while (receiverCount > 0) {
+                receiverCount--;
+                listener = onReceiveMessageListeners.getBroadcastItem(receiverCount);
+                try {
+                    listener.onDelete(messageUid);
+                } catch (RemoteException e) {
+                    e.printStackTrace();
+                }
+            }
+            onReceiveMessageListeners.finishBroadcast();
+        });
+    }
+
+    @Override
+    public void onUserReceivedMessage(Map<String, Long> map) {
+        handler.post(() -> {
+            int receiverCount = onReceiveMessageListeners.beginBroadcast();
+            IOnReceiveMessageListener listener;
+            while (receiverCount > 0) {
+                receiverCount--;
+                listener = onReceiveMessageListeners.getBroadcastItem(receiverCount);
+                try {
+                    listener.onDelivered(map);
+                } catch (RemoteException e) {
+                    e.printStackTrace();
+                }
+            }
+            onReceiveMessageListeners.finishBroadcast();
+        });
+    }
+
+    @Override
+    public void onUserReadedMessage(List<ProtoReadEntry> list) {
+        handler.post(() -> {
+            List<ReadEntry> l = new ArrayList<>();
+            for (ProtoReadEntry entry : list) {
+                ReadEntry r = new ReadEntry();
+                r.conversation = new Conversation(Conversation.ConversationType.type(entry.conversationType), entry.target, entry.line);
+                r.userId = entry.userId;
+                r.readDt = entry.readDt;
+                l.add(r);
+            }
+
+            int receiverCount = onReceiveMessageListeners.beginBroadcast();
+            IOnReceiveMessageListener listener;
+            while (receiverCount > 0) {
+                receiverCount--;
+                listener = onReceiveMessageListeners.getBroadcastItem(receiverCount);
+                try {
+                    listener.onReaded(l);
+                } catch (RemoteException e) {
+                    e.printStackTrace();
+                }
+            }
+            onReceiveMessageListeners.finishBroadcast();
+        });
+    }
+
+    private void onReceiveMessageInternal(ProtoMessage[] protoMessages) {
         int receiverCount = onReceiveMessageListeners.beginBroadcast();
         IOnReceiveMessageListener listener;
         while (receiverCount > 0) {
             receiverCount--;
             listener = onReceiveMessageListeners.getBroadcastItem(receiverCount);
             try {
-                listener.onReceive(messages, hasMore);
+                SafeIPCMessageEntry entry;
+                int startIndex = 0;
+                do {
+                    entry = buildSafeIPCMessages(protoMessages, startIndex, false);
+                    listener.onReceive(entry.messages, entry.messages.size() > 0 && startIndex != protoMessages.length - 1);
+                    startIndex = entry.index + 1;
+                } while (entry.index > 0 && entry.index < protoMessages.length - 1);
             } catch (RemoteException e) {
                 e.printStackTrace();
             }
@@ -2109,37 +2335,13 @@ public class ClientService extends Service implements SdtLogic.ICallBack,
 
     @Override
     public void onReceiveMessage(List<ProtoMessage> messages, boolean hasMore) {
-        if (mConnectionStatus == ConnectionStatusReceiveing) {
+        if (mConnectionStatus == ConnectionStatusReceiveing && hasMore) {
             return;
         }
         if (messages.isEmpty()) {
             return;
         }
-        handler.post(() -> {
-            int totalLength = 0;
-            int messageContentLength;
-            int maxIpcMessageLength = MAX_IPC_SIZE;
-
-            List<Message> msgs = new ArrayList<>();
-            for (ProtoMessage pmsg : messages) {
-                messageContentLength = getProtoMessageLength(pmsg);
-                if (messageContentLength > maxIpcMessageLength) {
-                    android.util.Log.e("ClientService", "drop message, too large: " + pmsg.getMessageUid() + " " + messageContentLength);
-                    continue;
-                }
-                totalLength += messageContentLength;
-                if (totalLength >= maxIpcMessageLength) {
-                    onReceiveMessageInternal(msgs, msgs.size() < messages.size());
-                    totalLength = 0;
-                    msgs = new ArrayList<>();
-                } else {
-                    msgs.add(convertProtoMessage(pmsg));
-                }
-            }
-            if (!msgs.isEmpty()) {
-                onReceiveMessageInternal(msgs, false);
-            }
-        });
+        handler.post(() -> onReceiveMessageInternal(messages.toArray(new ProtoMessage[0])));
     }
 
     @Override
@@ -2316,5 +2518,64 @@ public class ClientService extends Service implements SdtLogic.ICallBack,
         length += content.getRemoteMediaUrl() != null ? content.getRemoteMediaUrl().length() : 0;
         length += content.getLocalContent() != null ? content.getLocalContent().length() : 0;
         return length;
+    }
+
+    private void safeMessagesCallback(ProtoMessage[] protoMessages, boolean before, IGetMessageCallback callback) {
+        try {
+            SafeIPCMessageEntry entry;
+            int startIndex = 0;
+            do {
+                entry = buildSafeIPCMessages(protoMessages, startIndex, before);
+                callback.onSuccess(entry.messages, entry.messages.size() > 0 && startIndex != protoMessages.length - 1);
+                startIndex = entry.index + 1;
+            } while (entry.index > 0 && entry.index < protoMessages.length - 1);
+        } catch (RemoteException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private SafeIPCMessageEntry buildSafeIPCMessages(ProtoMessage[] messages, int startIndex, boolean before) {
+        SafeIPCMessageEntry entry = new SafeIPCMessageEntry();
+        int totalLength = 0;
+        int messageContentLength;
+        if (messages == null || messages.length == 0) {
+            return entry;
+        }
+
+        for (int i = startIndex; i < messages.length; i++) {
+            ProtoMessage pmsg;
+            if (before) {
+                pmsg = messages[messages.length - i - 1];
+            } else {
+                pmsg = messages[i];
+            }
+            messageContentLength = getProtoMessageLength(pmsg);
+            if (messageContentLength > MAX_IPC_SIZE) {
+                android.util.Log.e("ClientService", "drop message, too large: " + pmsg.getMessageUid() + " " + messageContentLength);
+                continue;
+            }
+            totalLength += messageContentLength;
+            if (totalLength <= MAX_IPC_SIZE) {
+                if (before) {
+                    entry.messages.add(0, convertProtoMessage(pmsg));
+                } else {
+                    entry.messages.add(convertProtoMessage(pmsg));
+                }
+                entry.index = i;
+            } else {
+                break;
+            }
+        }
+        return entry;
+    }
+
+    private static class SafeIPCMessageEntry {
+        public SafeIPCMessageEntry() {
+            messages = new ArrayList<>();
+            index = 0;
+        }
+
+        List<Message> messages;
+        int index;
     }
 }

@@ -28,6 +28,10 @@ android {
 
                 JPUSH_APPKEY : "b5e48e765391b87f904e1461",
                 JPUSH_CHANNEL: "default_developer",
+
+                OPPO_APP_KEY  : "16c6afe503b24259928e082ef01a6bf2",
+                OPPO_APP_SECRET : "16c6afe503b24259928e082ef01a6bf2"
+
         ]
     }
 
@@ -47,13 +51,12 @@ android {
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
 
-    implementation 'com.huawei.android.hms:push:2.5.3.305'
-    implementation 'com.huawei.android.hms:base:2.5.3.305'
+    implementation 'com.huawei.hms:push:4.0.3.301'
 
     implementation 'androidx.appcompat:appcompat:1.0.0-beta01'
     implementation project(':client')
     implementation 'com.meizu.flyme.internet:push-internal:3.4.2@aar'
 
-    def lifecycle_version = '2.2.0-alpha05'
+    def lifecycle_version = '2.2.0'
     implementation "androidx.lifecycle:lifecycle-extensions:$lifecycle_version"
 }

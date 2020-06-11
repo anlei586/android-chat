@@ -7,9 +7,18 @@
     android:orientation="vertical">
 
     <cn.wildfire.chat.kit.widget.OptionItemView
+        android:id="@+id/momentOptionItemView"
+        style="@style/OptionItem"
+        android:background="@drawable/selector_common_item"
+        app:show_arrow_indicator="true"
+        android:layout_marginBottom="10dp"
+        app:start_src="@mipmap/ic_moment"
+        app:title="朋友圈" />
+
+    <cn.wildfire.chat.kit.widget.OptionItemView
         android:id="@+id/chatRoomOptionItemView"
         style="@style/OptionItem"
-        android:layout_marginTop="@dimen/option_item_margin_top"
+        android:layout_marginBottom="10dp"
         android:background="@drawable/selector_common_item"
         android:visibility="gone"
         app:show_arrow_indicator="true"
@@ -19,7 +28,7 @@
     <cn.wildfire.chat.kit.widget.OptionItemView
         android:id="@+id/robotOptionItemView"
         style="@style/OptionItem"
-        android:layout_marginTop="@dimen/option_item_margin_top"
+        android:layout_marginBottom="10dp"
         android:background="@drawable/selector_common_item"
         android:visibility="gone"
         app:show_arrow_indicator="true"
@@ -29,7 +38,7 @@
     <cn.wildfire.chat.kit.widget.OptionItemView
         android:id="@+id/channelOptionItemView"
         style="@style/OptionItem"
-        android:layout_marginTop="@dimen/option_item_margin_top"
+        android:layout_marginBottom="10dp"
         android:background="@drawable/selector_common_item"
         android:visibility="gone"
         app:divider_align_to_title="false"
@@ -37,8 +46,21 @@
         app:start_src="@mipmap/ic_channel"
         app:title="频道" />
 
+
     <cn.wildfire.chat.kit.widget.ProgressWebView
         android:id="@+id/webView"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
+
+    <cn.wildfire.chat.kit.widget.OptionItemView
+        android:id="@+id/cookbookOptionItemView"
+        style="@style/OptionItem"
+        android:layout_marginBottom="10dp"
+        android:background="@drawable/selector_common_item"
+        android:visibility="gone"
+        app:divider_align_to_title="false"
+        app:show_arrow_indicator="true"
+        app:start_src="@mipmap/ic_dev_docs"
+        app:title="开发手册" />
+
 </LinearLayout>
