@@ -16,7 +16,7 @@
         android:layout_marginTop="@dimen/option_item_margin_top"
         android:background="@drawable/anleiradius"
         android:gravity="center_vertical"
-        android:paddingTop="20dp"
+        android:paddingTop="4dp"
         android:paddingRight="3dp"
         android:layout_marginLeft="8dp"
         android:layout_marginRight="8dp"
@@ -64,7 +64,7 @@
         <ImageView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="15dp"
+            android:layout_marginTop="0dp"
             android:layout_marginRight="@dimen/option_item_margin_right"
             app:srcCompat="@mipmap/qr_code" />
     </LinearLayout>
@@ -101,6 +101,7 @@
         style="@style/OptionItem"
         android:layout_marginTop="@dimen/option_item_margin_top"
         android:background="@drawable/selector_common_item"
+        android:visibility="gone"
         app:divider_align_to_title="true"
         app:show_arrow_indicator="true"
         app:start_src="@mipmap/ic_theme"
@@ -110,12 +111,14 @@
         android:id="@+id/settintOptionItemView"
         style="@style/OptionItem"
         android:layout_marginLeft="8dp"
+        android:layout_marginTop="@dimen/option_item_margin_top"
         android:layout_marginRight="8dp"
-        android:layout_marginTop="-1dp"
         android:background="@drawable/anleiradiusbottom"
         android:clickable="true"
+
         app:show_arrow_indicator="true"
-        app:start_src="@mipmap/ic_setting"
+        app:divider_align_to_title="true"
+        app:start_src="@mipmap/me_press"
         app:title="@string/setting" />
 
 </LinearLayout>

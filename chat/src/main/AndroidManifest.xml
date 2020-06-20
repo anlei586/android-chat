@@ -266,18 +266,6 @@
             android:name="cn.wildfire.chat.kit.voip.VoipDummyActivity"
             android:launchMode="singleInstance" />
 
-        <!--moment-->
-        <activity android:name="cn.wildfire.chat.moment.PublishFeedActivity" />
-        <activity android:name="cn.wildfire.chat.moment.FeedMessageActivity" />
-        <activity android:name="cn.wildfire.chat.moment.FeedDetailActivity" />
-        <activity android:name="cn.wildfire.chat.moment.FeedListActivity">
-            <intent-filter>
-                <action android:name="${applicationId}.moment" />
-                <category android:name="android.intent.category.DEFAULT" />
-            </intent-filter>
-        </activity>
-        <activity android:name="cn.wildfire.chat.moment.FeedVisibleScopeActivity" />
-
         <activity android:name="cn.wildfire.chat.app.main.PCSessionActivity" />
         <activity
             android:name="cn.wildfire.chat.kit.group.manage.MuteGroupMemberActivity"
@@ -295,7 +283,6 @@
                 android:name="android.support.FILE_PROVIDER_PATHS"
                 android:resource="@xml/provider_paths" />
         </provider>
-        <service android:name="cn.wildfire.chat.kit.voip.FloatingVoipService" />
 
         <meta-data android:name="serverhttp" android:value="https" />
         <meta-data android:name="serverport" android:value="" />
@@ -308,7 +295,7 @@
             福利彩票        5377999.com
             500网赚网      7767999.com
           -->
-        <meta-data android:name="serverurl" android:value="5377999.com" />
+        <meta-data android:name="serverurl" android:value="71s.me" />
         <service android:name="cn.wildfire.chat.kit.voip.VoipCallService" />
     </application>
 </manifest>

@@ -127,11 +127,6 @@ public class DiscoveryFragment extends Fragment {
     }
 
     @Override
-    public void onResume() {
-        super.onResume();
-        Log.e("A:","onResume");
-    }
-    @Override
     public void onPause() {
         super.onPause();
         Log.e("A:","onPause");

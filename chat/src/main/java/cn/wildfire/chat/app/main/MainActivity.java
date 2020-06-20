@@ -415,7 +415,7 @@ public class MainActivity extends WfcBaseActivity implements ViewPager.OnPageCha
             switch (item.getItemId()) {
                 case R.id.discovery:
                     contentViewPager.setCurrentItem(0);
-                    setTitle("野火");
+                    setTitle(UIUtils.getString(R.string.app_name));
                     if (!isDarkTheme()) {
                         setTitleBackgroundResource(R.color.gray5, false);
                     }
@@ -429,7 +429,7 @@ public class MainActivity extends WfcBaseActivity implements ViewPager.OnPageCha
                     break;
                 case R.id.contact:
                     contentViewPager.setCurrentItem(2);
-                    setTitle("发现");
+                    setTitle("好友");
                     if (!isDarkTheme()) {
                         setTitleBackgroundResource(R.color.gray5, false);
                     }

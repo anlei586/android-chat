@@ -43,6 +43,7 @@ import cn.wildfire.chat.kit.widget.OptionItemView;
 import cn.wildfirechat.chat.R;
 import cn.wildfirechat.model.Conversation;
 import cn.wildfirechat.model.UserInfo;
+import cn.wildfirechat.remote.ChatManager;
 
 public class UserInfoFragment extends Fragment {
     @BindView(R.id.portraitImageView)
@@ -141,12 +142,12 @@ public class UserInfoFragment extends Fragment {
         Glide.with(this).load(userInfo.portrait).apply(new RequestOptions().placeholder(R.mipmap.avatar_def).centerCrop()).into(portraitImageView);
         nameTextView.setText("ID" + userInfo.name);
         nameTextView.setVisibility(View.GONE);
-        nickyNameTextView.setText(userViewModel.getUserDisplayName(userInfo));
-        if (ChatManager.Instance().isMyFriend(userInfo.uid)) {
+        accountTextView.setText(userViewModel.getUserDisplayName(userInfo));
+        /*if (ChatManager.Instance().isMyFriend(userInfo.uid)) {
             //mobileTextView.setText("ID:" + userInfo.mobile);
             mobileTextView.setText("");
             mobileTextView.setVisibility(View.VISIBLE);
-        }
+        }*/
     }
 
     @OnClick(R.id.chatButton)

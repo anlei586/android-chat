@@ -2030,7 +2030,7 @@ public class ClientService extends Service implements SdtLogic.ICallBack,
             mBinder.registerMessageContent(GroupMuteNotificationContent.class.getName());
             mBinder.registerMessageContent(GroupJoinTypeNotificationContent.class.getName());
             mBinder.registerMessageContent(GroupPrivateChatNotificationContent.class.getName());
-            mBinder.registerMessageContent(GroupSetManagerChatNotificationContent.class.getName());
+            //mBinder.registerMessageContent(GroupSetManagerChatNotificationContent.class.getName());
             mBinder.registerMessageContent(RedpackMessageContent.class.getName());
             mBinder.registerMessageContent(GroupSetManagerNotificationContent.class.getName());
             mBinder.registerMessageContent(GroupMuteMemberNotificationContent.class.getName());

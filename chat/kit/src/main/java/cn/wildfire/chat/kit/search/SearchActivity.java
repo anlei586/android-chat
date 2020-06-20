@@ -61,24 +61,7 @@ public abstract class SearchActivity extends WfcBaseNoToolbarActivity {
     }
 
     private void initSearchView() {
-        searchView.onActionViewExpanded();
-        searchView.setQueryHint("Search");
-
-        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
-            @Override
-            public boolean onQueryTextSubmit(String s) {
-                search(s);
-                return false;
-            }
-
-            @Override
-            public boolean onQueryTextChange(String s) {
-                //search(s);
-                return true;
-            }
-        });
-
-        //searchView.setOnQueryTextListener(this::search);
+        searchView.setOnQueryTextListener(this::search);
     }
 
     protected void initSearchFragment() {
