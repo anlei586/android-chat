@@ -10,6 +10,7 @@ import java.util.List;
 import cn.wildfire.chat.kit.contact.model.UIUserInfo;
 import cn.wildfire.chat.kit.utils.PinyinUtils;
 import cn.wildfirechat.model.UserInfo;
+import cn.wildfirechat.remote.ChatManager;
 
 public class PickUserViewModel extends ViewModel {
     private List<UIUserInfo> users;
@@ -57,6 +58,10 @@ public class PickUserViewModel extends ViewModel {
         updateUserStatus();
     }
 
+    public List<String> getInitialCheckedIds() {
+        return initialCheckedIds;
+    }
+
     public void setUsers(List<UIUserInfo> users) {
         this.users = users;
         updateUserStatus();
@@ -88,8 +93,9 @@ public class PickUserViewModel extends ViewModel {
         List<UIUserInfo> resultList = new ArrayList<>();
         for (UIUserInfo info : users) {
             UserInfo userInfo = info.getUserInfo();
-            String pinyin = PinyinUtils.getPinyin(userInfo.displayName);
-            if (userInfo.displayName.contains(keyword) || pinyin.contains(keyword.toUpperCase())) {
+            String name = ChatManager.Instance().getUserDisplayName(userInfo);
+            String pinyin = PinyinUtils.getPinyin(name);
+            if (name.contains(keyword) || pinyin.contains(keyword.toUpperCase())) {
                 resultList.add(info);
                 if (uncheckableIds != null && uncheckableIds.contains(userInfo.uid)) {
                     info.setCheckable(false);

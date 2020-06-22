@@ -9,7 +9,7 @@
     <item
         android:id="@+id/conversation_list"
         android:icon="@drawable/bottom_conversation_menu_selector"
-        android:title="会话"
+        android:title="聊天"
         app:showAsAction="never" />
     <item
         android:id="@+id/contact"

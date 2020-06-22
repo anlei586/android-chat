@@ -37,6 +37,7 @@ import cn.wildfire.chat.kit.net.OKHttpHelper;
 import cn.wildfire.chat.kit.net.SimpleCallback;
 import cn.wildfire.chat.kit.third.utils.IOUtils;
 import cn.wildfire.chat.kit.utils.AnleiUtils;
+import cn.wildfire.chat.kit.WfcBaseNoToolbarActivity;
 import cn.wildfirechat.chat.R;
 import cn.wildfirechat.push.PushService;
 import okhttp3.Call;
@@ -47,7 +48,7 @@ import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
 
-public class SMSLoginActivity extends WfcBaseActivity {
+public class SMSLoginActivity extends WfcBaseNoToolbarActivity {
     @BindView(R.id.loginButton)
     Button loginButton;
     @BindView(R.id.phoneNumberEditText)
@@ -55,7 +56,7 @@ public class SMSLoginActivity extends WfcBaseActivity {
     @BindView(R.id.authCodeEditText)
     EditText authCodeEditText;
     @BindView(R.id.requestAuthCodeButton)
-    Button requestAuthCodeButton;
+    TextView requestAuthCodeButton;
 
 
     @BindView(R.id.regexp_txt)
@@ -92,6 +93,11 @@ public class SMSLoginActivity extends WfcBaseActivity {
         return R.layout.login_activity_sms;
     }
 
+    @Override
+    protected void afterViews() {
+        setStatusBarTheme(this, false);
+        setStatusBarColor(R.color.white);
+    }
 
     @OnTextChanged(value = R.id.phoneNumberEditText, callback = OnTextChanged.Callback.AFTER_TEXT_CHANGED)
     void inputPhoneNumber(Editable editable) {
@@ -111,11 +117,6 @@ public class SMSLoginActivity extends WfcBaseActivity {
         }
     }
 
-    @Override
-    protected boolean showHomeMenuItem() {
-        return false;
-    }
-
     @OnClick(R.id.loginButton)
     void login() {
         String phoneNumber = phoneNumberEditText.getText().toString().trim();
@@ -123,10 +124,10 @@ public class SMSLoginActivity extends WfcBaseActivity {
 
         //loginButton.setEnabled(false);
         MaterialDialog dialog = new MaterialDialog.Builder(this)
-                .content("登录中...")
-                .progress(true, 100)
-                .cancelable(false)
-                .build();
+            .content("登录中...")
+            .progress(true, 100)
+            .cancelable(false)
+            .build();
         dialog.show();
 
 
@@ -141,9 +142,9 @@ public class SMSLoginActivity extends WfcBaseActivity {
                 ChatManagerHolder.gChatManager.connect(loginResult.getUserId(), loginResult.getToken());
                 SharedPreferences sp = getSharedPreferences("config", Context.MODE_PRIVATE);
                 sp.edit()
-                        .putString("id", loginResult.getUserId())
-                        .putString("token", loginResult.getToken())
-                        .apply();
+                    .putString("id", loginResult.getUserId())
+                    .putString("token", loginResult.getToken())
+                    .apply();
                 Intent intent = new Intent(SMSLoginActivity.this, MainActivity.class);
                 intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
                 startActivity(intent);

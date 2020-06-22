@@ -27,15 +27,28 @@ public class SearchFragment extends Fragment {
     RecyclerView recyclerView;
     @BindView(R.id.emptyLinearLayout)
     LinearLayout emptyLinearLayout;
+    @BindView(R.id.descLinearLayout)
+    LinearLayout descLinearLayout;
     private SearchResultAdapter adapter;
     private SearchViewModel searchViewModel;
     private Observer<SearchResult> searchResultObserver = this::onSearchResult;
     private InputMethodManager inputManager;
 
+    private boolean hideSearchDescView = false;
+
+    public static final String HIDE_SEARCH_DESC_VIEW = "hideSearchDescView";
+
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        Bundle args = getArguments();
+        hideSearchDescView = args != null && args.getBoolean(HIDE_SEARCH_DESC_VIEW);
+    }
+
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.search_result_fragment, container, false);
+        View view = inflater.inflate(R.layout.search_fragment, container, false);
         searchViewModel = ViewModelProviders.of(this).get(SearchViewModel.class);
         searchViewModel.getResultLiveData().observeForever(searchResultObserver);
         ButterKnife.bind(this, view);
@@ -46,6 +59,7 @@ public class SearchFragment extends Fragment {
                 inputManager.hideSoftInputFromWindow(view.getWindowToken(), 0);
             }
         });
+        descLinearLayout.setVisibility(hideSearchDescView ? View.GONE: View.VISIBLE);
         return view;
     }
 
@@ -60,6 +74,7 @@ public class SearchFragment extends Fragment {
         if (adapter != null) {
             adapter.reset();
         }
+        descLinearLayout.setVisibility(View.GONE);
         searchViewModel.search(keyword, searchableModules);
     }
 
@@ -67,6 +82,7 @@ public class SearchFragment extends Fragment {
         if (adapter != null) {
             adapter.reset();
         }
+        descLinearLayout.setVisibility(View.VISIBLE);
         emptyLinearLayout.setVisibility(View.GONE);
         recyclerView.setVisibility(View.GONE);
     }

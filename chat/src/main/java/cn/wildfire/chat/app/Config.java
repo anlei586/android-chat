@@ -78,13 +78,20 @@ public interface Config {
     String APP_SERVER_ADDRESS = APP_SERVER_URL + ":8888";
     String APP_SERVER_PHP = getMFSPort().isEmpty() ? getMFSH()+"://"+getMFSU() : getMFSH()+"://"+getMFSU() + ":" + getMFSPort();
 
+
     String ICE_ADDRESS = "turn:turn.wildfirechat.cn:3478";
+    String ICE_ADDRESS2 = "turn:117.51.153.82:3478";
     String ICE_USERNAME = "wfchat";
     String ICE_PASSWORD = "wfchat";
-    // 二次开发时，一定记得替换为你们自己的
+
+    // 一定记得替换为你们自己的，ID请从BUGLY官网申请。关于BUGLY，可以从BUGLY官网了解，或者百度。
     String BUGLY_ID = "34490ba79f";
 
     int DEFAULT_MAX_AUDIO_RECORD_TIME_SECOND = 120;
+
+    // 支持多人音视频时有效
+    int MAX_VIDEO_PARTICIPANT_COUNT = 9;
+    int MAX_AUDIO_PARTICIPANT_COUNT = 9;
 
     String VIDEO_SAVE_DIR = Environment.getExternalStorageDirectory().getPath() + "/wfc/video";
     String AUDIO_SAVE_DIR = Environment.getExternalStorageDirectory().getPath() + "/wfc/audio";

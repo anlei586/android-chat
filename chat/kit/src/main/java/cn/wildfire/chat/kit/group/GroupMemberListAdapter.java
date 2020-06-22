@@ -19,11 +19,18 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 import cn.wildfirechat.chat.R;
+import cn.wildfirechat.model.GroupInfo;
 import cn.wildfirechat.model.UserInfo;
+import cn.wildfirechat.remote.ChatManager;
 
 public class GroupMemberListAdapter extends RecyclerView.Adapter<GroupMemberListAdapter.MemberViewHolder> {
+    private GroupInfo groupInfo;
     private List<UserInfo> members;
     private OnMemberClickListener onMemberClickListener;
+
+    public GroupMemberListAdapter(GroupInfo groupInfo) {
+        this.groupInfo = groupInfo;
+    }
 
     public void setMembers(List<UserInfo> members) {
         this.members = members;
@@ -115,13 +122,13 @@ public class GroupMemberListAdapter extends RecyclerView.Adapter<GroupMemberList
         public void bindUserInfo(UserInfo userInfo) {
             if (userInfo == null) {
                 nameTextView.setText("");
-                portraitImageView.setImageResource(R.mipmap.default_header);
+                portraitImageView.setImageResource(R.mipmap.avatar_def);
                 return;
             }
             this.userInfo = userInfo;
             nameTextView.setVisibility(View.VISIBLE);
-            nameTextView.setText(userInfo.displayName);
-            Glide.with(portraitImageView).load(userInfo.portrait).apply(new RequestOptions().centerCrop().placeholder(R.mipmap.default_header)).into(portraitImageView);
+            nameTextView.setText(ChatManager.Instance().getGroupMemberDisplayName(groupInfo.target, userInfo.uid));
+            Glide.with(portraitImageView).load(userInfo.portrait).apply(new RequestOptions().centerCrop().placeholder(R.mipmap.avatar_def)).into(portraitImageView);
         }
 
     }

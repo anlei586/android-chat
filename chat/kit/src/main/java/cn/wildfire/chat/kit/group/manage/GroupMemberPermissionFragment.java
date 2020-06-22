@@ -61,7 +61,8 @@ public class GroupMemberPermissionFragment extends Fragment {
                 privateChatSwitchButton.setCheckedNoEvent(!isChecked);
                 return;
             }
-            groupViewModel.preventPrivateChat(groupInfo.target, !isChecked, null, Collections.singletonList(0)).observe(this, booleanOperateResult -> {
+            //groupViewModel.preventPrivateChat(groupInfo.target, !isChecked, null, Collections.singletonList(0)).observe(this, booleanOperateResult -> {
+            groupViewModel.enablePrivateChat(groupInfo.target, isChecked, null, Collections.singletonList(0)).observe(this, booleanOperateResult -> {
                 if (!booleanOperateResult.isSuccess()) {
                     privateChatSwitchButton.setCheckedNoEvent(!isChecked);
                     Toast.makeText(getActivity(), "设置群成员权限失败 " + booleanOperateResult.getErrorCode(), Toast.LENGTH_SHORT).show();

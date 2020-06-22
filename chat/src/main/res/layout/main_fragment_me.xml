@@ -6,6 +6,9 @@
     android:background="@color/gray5"
     android:orientation="vertical">
 
+    <!--
+    使用LightAppBar 主题时，layout_height="110dp"，paddingTop="0dp" 更协调
+    -->
     <LinearLayout
         android:id="@+id/meLinearLayout"
         android:layout_width="match_parent"
@@ -13,6 +16,7 @@
         android:layout_marginTop="@dimen/option_item_margin_top"
         android:background="@drawable/anleiradius"
         android:gravity="center_vertical"
+        android:paddingTop="4dp"
         android:paddingRight="3dp"
         android:layout_marginLeft="8dp"
         android:layout_marginRight="8dp"
@@ -20,29 +24,30 @@
 
         <ImageView
             android:id="@+id/portraitImageView"
-            android:layout_width="70dp"
-            android:layout_height="70dp"
-            android:layout_marginLeft="15dp"
+            android:layout_width="60dp"
+            android:layout_height="60dp"
+            android:layout_marginLeft="16dp"
             android:layout_marginRight="@dimen/option_item_margin_right"
             android:scaleType="centerCrop"
-            android:src="@mipmap/default_header" />
+            android:src="@mipmap/avatar_def" />
 
         <LinearLayout
             android:layout_width="0dp"
             android:layout_height="70dp"
             android:layout_weight="1"
-            android:gravity="center_vertical"
             android:orientation="vertical">
 
             <TextView
                 android:id="@+id/nameTextView"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_marginTop="15dp"
                 android:layout_marginBottom="3dp"
                 android:singleLine="true"
                 android:text="wfc"
                 android:textColor="@color/gray0"
-                android:textSize="15sp" />
+                android:textSize="15sp"
+                android:textStyle="bold" />
 
             <TextView
                 android:id="@+id/accountTextView"
@@ -59,9 +64,9 @@
         <ImageView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginTop="0dp"
             android:layout_marginRight="@dimen/option_item_margin_right"
             app:srcCompat="@mipmap/qr_code" />
-
     </LinearLayout>
 
 
@@ -70,9 +75,11 @@
         style="@style/OptionItem"
         android:layout_marginLeft="8dp"
         android:layout_marginTop="@dimen/option_item_margin_top"
+
         android:layout_marginRight="8dp"
         android:background="@drawable/anleiradius"
         android:clickable="true"
+        app:show_arrow_indicator="true"
         app:start_src="@mipmap/ic_file"
         app:title="@string/app_admin" />
 
@@ -84,17 +91,33 @@
         android:layout_marginRight="8dp"
         android:background="@drawable/anleiradiustop"
         android:clickable="true"
+        app:show_arrow_indicator="true"
+        app:divider_align_to_title="true"
         app:start_src="@mipmap/ic_account_setting"
         app:title="@string/passwordOption" />
+
+    <cn.wildfire.chat.kit.widget.OptionItemView
+        android:id="@+id/themeOptionItemView"
+        style="@style/OptionItem"
+        android:layout_marginTop="@dimen/option_item_margin_top"
+        android:background="@drawable/selector_common_item"
+        android:visibility="gone"
+        app:divider_align_to_title="true"
+        app:show_arrow_indicator="true"
+        app:start_src="@mipmap/ic_theme"
+        app:title="主题" />
 
     <cn.wildfire.chat.kit.widget.OptionItemView
         android:id="@+id/settintOptionItemView"
         style="@style/OptionItem"
         android:layout_marginLeft="8dp"
+        android:layout_marginTop="@dimen/option_item_margin_top"
         android:layout_marginRight="8dp"
-        android:layout_marginTop="-1dp"
         android:background="@drawable/anleiradiusbottom"
         android:clickable="true"
+
+        app:show_arrow_indicator="true"
+        app:divider_align_to_title="true"
         app:start_src="@mipmap/me_press"
         app:title="@string/setting" />
 
