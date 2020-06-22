@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical">
@@ -19,6 +20,7 @@
         style="@style/OptionItem"
         android:layout_marginBottom="10dp"
         android:background="@drawable/selector_common_item"
+        android:visibility="gone"
         app:show_arrow_indicator="true"
         app:start_src="@mipmap/ic_chatroom"
         app:title="聊天室" />
@@ -28,6 +30,7 @@
         style="@style/OptionItem"
         android:layout_marginBottom="10dp"
         android:background="@drawable/selector_common_item"
+        android:visibility="gone"
         app:show_arrow_indicator="true"
         app:start_src="@mipmap/ic_robot"
         app:title="机器人" />
@@ -37,17 +40,27 @@
         style="@style/OptionItem"
         android:layout_marginBottom="10dp"
         android:background="@drawable/selector_common_item"
+        android:visibility="gone"
         app:divider_align_to_title="false"
         app:show_arrow_indicator="true"
         app:start_src="@mipmap/ic_channel"
         app:title="频道" />
+
+
+    <cn.wildfire.chat.kit.widget.ProgressWebView
+        android:id="@+id/webView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+
     <cn.wildfire.chat.kit.widget.OptionItemView
         android:id="@+id/cookbookOptionItemView"
         style="@style/OptionItem"
         android:layout_marginBottom="10dp"
         android:background="@drawable/selector_common_item"
+        android:visibility="gone"
         app:divider_align_to_title="false"
         app:show_arrow_indicator="true"
         app:start_src="@mipmap/ic_dev_docs"
         app:title="开发手册" />
+
 </LinearLayout>

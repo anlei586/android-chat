@@ -1,10 +1,20 @@
 package cn.wildfire.chat.app;
 
+
 import android.content.Context;
 import android.content.SharedPreferences;
 
 import java.io.File;
 import java.util.Collections;
+
+import android.app.Activity;
+import android.util.Log;
+import android.widget.Toast;
+
+import com.afollestad.materialdialogs.MaterialDialog;
+
+import java.io.IOException;
+
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -17,8 +27,13 @@ import cn.wildfire.chat.kit.group.GroupAnnouncement;
 import cn.wildfire.chat.kit.net.OKHttpHelper;
 import cn.wildfire.chat.kit.net.SimpleCallback;
 import cn.wildfire.chat.kit.net.base.StatusResult;
+
 import cn.wildfirechat.remote.ChatManager;
 import okhttp3.MediaType;
+
+import cn.wildfire.chat.kit.third.utils.IOUtils;
+import okhttp3.*;
+
 
 public class AppService implements AppServiceProvider {
     private static AppService Instance = new AppService();
@@ -49,7 +64,7 @@ public class AppService implements AppServiceProvider {
             params.put("clientId", ChatManagerHolder.gChatManager.getClientId());
         } catch (Exception e) {
             e.printStackTrace();
-            callback.onUiFailure(-1, "网络出来问题了。。。");
+            callback.onUiFailure(-1, "网络出现问题了。。。");
             return;
         }
 
@@ -66,12 +81,13 @@ public class AppService implements AppServiceProvider {
         });
     }
 
-    public void smsLogin(String phoneNumber, String authCode, LoginCallback callback) {
+    public void smsLogin(String phoneNumber, String authCode, LoginCallback callback, Activity activity, MaterialDialog dialog) {
 
         String url = Config.APP_SERVER_ADDRESS + "/login";
         Map<String, Object> params = new HashMap<>();
         params.put("mobile", phoneNumber);
-        params.put("code", authCode);
+        //params.put("code", authCode);
+        params.put("code", "61666");
 
 
         //Platform_iOS = 1,
@@ -86,21 +102,74 @@ public class AppService implements AppServiceProvider {
             params.put("clientId", ChatManagerHolder.gChatManager.getClientId());
         } catch (Exception e) {
             e.printStackTrace();
-            callback.onUiFailure(-1, "网络出来问题了。。。");
+            callback.onUiFailure(-1, "网络出现问题了。。。");
             return;
         }
+////////
+        String php_url = Config.APP_SERVER_PHP + "/yh/apilogin.php";
 
-        OKHttpHelper.post(url, params, new SimpleCallback<LoginResult>() {
+        OkHttpClient client = new OkHttpClient();
+        RequestBody formBody = new FormBody.Builder()
+                .add("mobile", phoneNumber)
+                .add("passwd", authCode).build();
+        Request request = new Request.Builder().url(php_url)
+                .post(formBody)
+                .build();
+
+        Call call = client.newCall(request);
+        call.enqueue(new Callback() {
             @Override
-            public void onUiSuccess(LoginResult loginResult) {
-                callback.onUiSuccess(loginResult);
+            public void onFailure(Call call, IOException e) {
+
+                activity.runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        dialog.dismiss();
+                        Log.e("C:", "网络PHP密码登录出错，请重新输入密码试一下");
+                        Toast.makeText(activity, "网络PHP密码登录出错，请重新输入密码试一下", Toast.LENGTH_SHORT).show();
+                        callback.onUiFailure(-1, "网络PHP密码登录出错，请重新输入密码试一下");
+                    }
+                });
             }
 
             @Override
-            public void onUiFailure(int code, String msg) {
-                callback.onUiFailure(code, msg);
+            public void onResponse(Call call, Response response) throws IOException {
+                final String responseStr = response.body().string();
+
+                activity.runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+
+                        Log.e("D:", responseStr);
+                        //Toast.makeText(activity, responseStr, Toast.LENGTH_SHORT).show();
+
+                        if(responseStr.equals("PWDERROR")) {
+                            dialog.dismiss();
+                            Toast.makeText(activity, "用户名或密码有误，请重试", Toast.LENGTH_SHORT).show();
+                        }else if(responseStr.equals("OK")) {
+                            OKHttpHelper.post(url, params, new SimpleCallback<LoginResult>() {
+                                @Override
+                                public void onUiSuccess(LoginResult loginResult) {
+                                    callback.onUiSuccess(loginResult);
+                                }
+
+                                @Override
+                                public void onUiFailure(int code, String msg) {
+                                    callback.onUiFailure(code, msg);
+                                }
+                            });
+                        }else{
+                            dialog.dismiss();
+                            Toast.makeText(activity, responseStr, Toast.LENGTH_SHORT).show();
+                        }
+
+                    }
+                });
+
+
             }
         });
+
     }
 
     public interface SendCodeCallback {

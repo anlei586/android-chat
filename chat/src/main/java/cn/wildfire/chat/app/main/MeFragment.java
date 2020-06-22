@@ -28,8 +28,13 @@ import java.util.List;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
+import cn.wildfire.chat.app.main.model.MainModel;
 import cn.wildfire.chat.app.setting.SettingActivity;
+import cn.wildfire.chat.kit.ChatManagerHolder;
 import cn.wildfire.chat.kit.settings.MessageNotifySettingActivity;
+
+import cn.wildfire.chat.kit.WfcWebViewActivity;
+
 import cn.wildfire.chat.kit.third.utils.UIUtils;
 import cn.wildfire.chat.kit.user.UserInfoActivity;
 import cn.wildfire.chat.kit.user.UserViewModel;
@@ -50,6 +55,9 @@ public class MeFragment extends Fragment {
 
     @BindView(R.id.notificationOptionItemView)
     OptionItemView notificationOptionItem;
+
+    @BindView(R.id.passwordOptionItemView)
+    OptionItemView passwordOptionItemView;
 
     @BindView(R.id.settintOptionItemView)
     OptionItemView settingOptionItem;
@@ -104,12 +112,34 @@ public class MeFragment extends Fragment {
                 }
             });
         userViewModel.userInfoLiveData().observeForever(userInfoLiveDataObserver);
+
+        if(MainModel.clientConfig.getIsOpenAdmin().equals("0")) {
+            notificationOptionItem.setVisibility(View.GONE);
+        }else{
+            notificationOptionItem.setVisibility(View.VISIBLE);
+        }
     }
 
     @Override
     public void onDestroyView() {
         super.onDestroyView();
         userViewModel.userInfoLiveData().removeObserver(userInfoLiveDataObserver);
+    }
+    @OnClick(R.id.notificationOptionItemView)
+    void showAdmin(){
+        //加载管理页面
+
+        String clientId = ChatManagerHolder.gChatManager.getClientId();
+        String userId = ChatManagerHolder.gChatManager.getUserId();
+
+        String url = MainModel.clientConfig.getApiAdmin() + "?cid=" + clientId + "&uid=" + userId;
+
+        WfcWebViewActivity.loadUrl(getContext(), UIUtils.getString(R.string.app_admin), url);
+    }
+    @OnClick(R.id.passwordOptionItemView)
+    void showPasswordOption(){
+        //加载修改密码页面
+        WfcWebViewActivity.loadUrl(getContext(), UIUtils.getString(R.string.passwordOption), MainModel.clientConfig.getPasswdsoupprt());
     }
 
     @OnClick(R.id.meLinearLayout)
@@ -151,10 +181,5 @@ public class MeFragment extends Fragment {
         startActivity(intent);
     }
 
-    @OnClick(R.id.notificationOptionItemView)
-    void msgNotifySetting() {
-        Intent intent = new Intent(getActivity(), MessageNotifySettingActivity.class);
-        startActivity(intent);
-    }
-
 }
+

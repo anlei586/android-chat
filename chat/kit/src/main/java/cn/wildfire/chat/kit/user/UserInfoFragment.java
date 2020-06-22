@@ -43,6 +43,7 @@ import cn.wildfire.chat.kit.widget.OptionItemView;
 import cn.wildfirechat.chat.R;
 import cn.wildfirechat.model.Conversation;
 import cn.wildfirechat.model.UserInfo;
+import cn.wildfirechat.remote.ChatManager;
 
 public class UserInfoFragment extends Fragment {
     @BindView(R.id.portraitImageView)
@@ -102,20 +103,20 @@ public class UserInfoFragment extends Fragment {
         if (selfUid.equals(userInfo.uid)) {
             // self
             chatButton.setVisibility(View.GONE);
-            voipChatButton.setVisibility(View.GONE);
+            //voipChatButton.setVisibility(View.GONE);
             inviteButton.setVisibility(View.GONE);
             qrCodeOptionItemView.setVisibility(View.VISIBLE);
             aliasOptionItemView.setVisibility(View.VISIBLE);
         } else if (contactViewModel.isFriend(userInfo.uid)) {
             // friend
             chatButton.setVisibility(View.VISIBLE);
-            voipChatButton.setVisibility(View.VISIBLE);
+            //voipChatButton.setVisibility(View.VISIBLE);
             inviteButton.setVisibility(View.GONE);
         } else {
             // stranger
             momentButton.setVisibility(View.GONE);
             chatButton.setVisibility(View.GONE);
-            voipChatButton.setVisibility(View.GONE);
+            //voipChatButton.setVisibility(View.GONE);
             inviteButton.setVisibility(View.VISIBLE);
             aliasOptionItemView.setVisibility(View.GONE);
         }
@@ -138,15 +139,15 @@ public class UserInfoFragment extends Fragment {
     }
 
     private void setUserInfo(UserInfo userInfo) {
-        RequestOptions requestOptions = new RequestOptions()
-            .placeholder(UIUtils.getRoundedDrawable(R.mipmap.avatar_def, 10))
-            .transforms(new CenterCrop(), new RoundedCorners(UIUtils.dip2Px(10)));
-        Glide.with(this)
-            .load(userInfo.portrait)
-            .apply(requestOptions)
-            .into(portraitImageView);
-        nameTextView.setText(userViewModel.getUserDisplayName(userInfo));
-        accountTextView.setText("野火ID:" + userInfo.name);
+        Glide.with(this).load(userInfo.portrait).apply(new RequestOptions().placeholder(R.mipmap.avatar_def).centerCrop()).into(portraitImageView);
+        nameTextView.setText("ID" + userInfo.name);
+        nameTextView.setVisibility(View.GONE);
+        accountTextView.setText(userViewModel.getUserDisplayName(userInfo));
+        /*if (ChatManager.Instance().isMyFriend(userInfo.uid)) {
+            //mobileTextView.setText("ID:" + userInfo.mobile);
+            mobileTextView.setText("");
+            mobileTextView.setVisibility(View.VISIBLE);
+        }*/
     }
 
     @OnClick(R.id.chatButton)

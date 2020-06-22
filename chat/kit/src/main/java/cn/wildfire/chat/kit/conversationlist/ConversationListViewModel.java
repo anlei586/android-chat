@@ -1,5 +1,7 @@
 package cn.wildfire.chat.kit.conversationlist;
 
+import android.os.Handler;
+
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
@@ -54,6 +56,15 @@ public class ConversationListViewModel extends ViewModel implements OnReceiveMes
         ChatManager.Instance().addDeleteMessageListener(this);
         ChatManager.Instance().addClearMessageListener(this);
         ChatManager.Instance().addRemoveConversationListener(this);
+
+        new Handler().postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                //ChatManager.Instance().getConnectionStatus() == ConnectionStatus.ConnectionStatusConnected
+                reloadConversationList(true);
+                reloadConversationUnreadStatus();
+            }
+        }, 1000 * 10);
     }
 
     @Override

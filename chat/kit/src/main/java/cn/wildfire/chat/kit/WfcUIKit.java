@@ -7,6 +7,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.media.AudioManager;
+import android.media.MediaPlayer;
 import android.net.Uri;
 import android.text.TextUtils;
 import android.util.Log;
@@ -34,6 +35,9 @@ import java.util.Iterator;
 import java.util.List;
 
 import cn.wildfire.chat.app.Config;
+import cn.wildfire.chat.app.MyApp;
+import cn.wildfire.chat.kit.audio.AudioPlayManager;
+import cn.wildfire.chat.kit.audio.IAudioPlayListener;
 import cn.wildfire.chat.app.WfcIntent;
 import cn.wildfire.chat.kit.common.AppScopeViewModel;
 import cn.wildfire.chat.kit.net.OKHttpHelper;
@@ -47,6 +51,7 @@ import cn.wildfirechat.chat.R;
 import cn.wildfirechat.client.NotInitializedExecption;
 import cn.wildfirechat.message.Message;
 import cn.wildfirechat.message.core.PersistFlag;
+import cn.wildfirechat.model.ConversationInfo;
 import cn.wildfirechat.model.Conversation;
 import cn.wildfirechat.remote.ChatManager;
 import cn.wildfirechat.remote.OnRecallMessageListener;
@@ -61,6 +66,7 @@ public class WfcUIKit implements AVEngineKit.AVEngineCallback, OnReceiveMessageL
     private ViewModelStore viewModelStore;
     private AppServiceProvider appServiceProvider;
     private static WfcUIKit wfcUIKit;
+    MediaPlayer mediaPlayer = null;
     private boolean isSupportMoment = false;
 
     private WfcUIKit() {
@@ -264,6 +270,7 @@ public class WfcUIKit implements AVEngineKit.AVEngineCallback, OnReceiveMessageL
 
     @Override
     public void onReceiveMessage(List<Message> messages, boolean hasMore) {
+        List<Message> msgs = new ArrayList<>(messages);
         if (isBackground) {
             // FIXME: 2018/5/28 只是临时方案，No_Persist消息，我觉得不应当到这儿，注册监听时，
             // 就表明自己关系哪些类型的消息, 设置哪些种类的消息
@@ -272,7 +279,7 @@ public class WfcUIKit implements AVEngineKit.AVEngineCallback, OnReceiveMessageL
                 return;
             }
 
-            List<Message> msgs = new ArrayList<>(messages);
+            //List<Message> msgs = new ArrayList<>(messages);
             long now = System.currentTimeMillis();
             long delta = ChatManager.Instance().getServerDeltaTime();
             Iterator<Message> iterator = msgs.iterator();
@@ -286,6 +293,18 @@ public class WfcUIKit implements AVEngineKit.AVEngineCallback, OnReceiveMessageL
             WfcNotificationManager.getInstance().handleReceiveMessage(application, msgs);
         } else {
             // do nothing
+        }
+        if(messages!=null && messages.size()>0 ){
+            Message msg  = messages.get(0);
+            if(msg!=null && msg.content!=null && msg.content.extra!=null && msg.messageId>0){
+                //String uri = R.raw.definite;
+                ConversationInfo conversationInfo = ChatManager.Instance().getConversation(msg.conversation);
+                if(!ChatManager.Instance().isGlobalSilent() && conversationInfo!=null && !conversationInfo.isSilent) {
+                    mediaPlayer = MediaPlayer.create(MyApp.getContext(), R.raw.definite);
+                    mediaPlayer.setVolume(0.5f, 0.5f);
+                    mediaPlayer.start();
+                }
+            }
         }
     }
 

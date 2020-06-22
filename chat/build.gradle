@@ -13,11 +13,12 @@ android {
     aaptOptions.cruncherEnabled = false
     aaptOptions.useNewCruncher = false
     defaultConfig {
-        applicationId "cn.wildfirechat.chat"
+        applicationId "com.me71s" //500网赚网 com.com7767999 // 福利 com.com5377999 //com.leliao123  //com.utkfht //易聊me.cai3 //蜜蜂me.mx6 //咪咪com.mm790368    //点聊com.me71s
         minSdkVersion 17
         targetSdkVersion 29 //当targetversion大于23时，需要使用fileprovider
         versionCode 24
         versionName "0.7.0"
+
         multiDexEnabled true
         javaCompileOptions {
             annotationProcessorOptions {
@@ -26,7 +27,7 @@ android {
         }
         signingConfig signingConfigs.wfc
 
-//        buildConfigField("String", "BuglyId", '"34490ba79f"')
+        buildConfigField("String", "BuglyId", '"34490ba79f"')
 
         ndk {
             abiFilters "armeabi-v7a", 'x86', 'x86_64' // ，'armeabi', 'arm64-v8a', 'x86', 'x86_64'
@@ -68,6 +69,7 @@ android {
     }
     productFlavors {
     }
+    buildToolsVersion = '28.0.3'
 
     compileOptions {
         sourceCompatibility 1.8
@@ -117,6 +119,7 @@ dependencies {
 
     implementation 'com.king.zxing:zxing-lite:1.1.1'
     implementation 'androidx.swiperefreshlayout:swiperefreshlayout:1.0.0'
+    implementation 'androidx.constraintlayout:constraintlayout:1.1.3'
     implementation 'androidx.gridlayout:gridlayout:1.0.0'
     implementation 'com.google.android:flexbox:2.0.1'
     // kit wfc end

@@ -8,6 +8,7 @@ import com.tencent.bugly.crashreport.CrashReport;
 import java.io.File;
 
 import cn.wildfire.chat.app.third.location.viewholder.LocationMessageContentViewHolder;
+import cn.wildfire.chat.app.third.redpack.viewholder.RedPackMessageContentViewHolder;
 import cn.wildfire.chat.kit.WfcUIKit;
 import cn.wildfire.chat.kit.conversation.message.viewholder.MessageViewHolderManager;
 import cn.wildfirechat.chat.BuildConfig;
@@ -16,15 +17,21 @@ import cn.wildfirechat.push.PushService;
 
 public class MyApp extends BaseApp {
 
+    public static Context _context=null;
     @Override
     public void onCreate() {
         super.onCreate();
+        _context = getApplicationContext();
         Config.validateConfig();
 
         // bugly，务必替换为你自己的!!!
+
+        //CrashReport.initCrashReport(getApplicationContext(), "34490ba79f", false);
+
         if ("wildfirechat.cn".equals(Config.IM_SERVER_HOST)) {
             CrashReport.initCrashReport(getApplicationContext(), Config.BUGLY_ID, false);
         }
+
         // 只在主进程初始化
         if (getCurProcessName(this).equals(BuildConfig.APPLICATION_ID)) {
             WfcUIKit wfcUIKit = WfcUIKit.getWfcUIKit();
@@ -32,6 +39,7 @@ public class MyApp extends BaseApp {
             wfcUIKit.setAppServiceProvider(AppService.Instance());
             PushService.init(this, BuildConfig.APPLICATION_ID);
             MessageViewHolderManager.getInstance().registerMessageViewHolder(LocationMessageContentViewHolder.class);
+            MessageViewHolderManager.getInstance().registerMessageViewHolder(RedPackMessageContentViewHolder.class);
             setupWFCDirs();
         }
     }

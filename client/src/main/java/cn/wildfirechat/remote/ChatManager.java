@@ -106,7 +106,7 @@ public class ChatManager {
     private static Context gContext;
 
     private String userId;
-    private String token;
+    public String token;
     private Handler mainHandler;
     private Handler workHandler;
     private String deviceToken;

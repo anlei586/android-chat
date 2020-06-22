@@ -180,7 +180,9 @@
             android:text="视频聊天"
             android:textColor="@color/blue3"
             android:textSize="16sp"
-            android:textStyle="bold" />
+            android:textStyle="bold"
+            android:visibility="gone"
+            tools:visibility="gone" />
 
     </FrameLayout>
 

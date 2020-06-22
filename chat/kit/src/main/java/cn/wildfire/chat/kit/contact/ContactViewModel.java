@@ -1,12 +1,17 @@
 package cn.wildfire.chat.kit.contact;
 
+import android.widget.Toast;
+
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import cn.wildfire.chat.app.MyApp;
+import cn.wildfire.chat.app.main.model.MainModel;
 import cn.wildfire.chat.kit.common.OperateResult;
 import cn.wildfire.chat.kit.contact.model.UIUserInfo;
 import cn.wildfirechat.model.Conversation;
@@ -36,7 +41,7 @@ public class ContactViewModel extends ViewModel implements OnFriendUpdateListene
         if (contactListLiveData == null) {
             contactListLiveData = new MutableLiveData<>();
         }
-        reloadContact();
+        reloadContact(false);
         return contactListLiveData;
     }
 
@@ -64,7 +69,7 @@ public class ContactViewModel extends ViewModel implements OnFriendUpdateListene
 
     private AtomicInteger loadingCount = new AtomicInteger(0);
 
-    public void reloadContact() {
+    public void reloadContact(boolean refresh) {
         int count = loadingCount.get();
         if (count > 0) {
             return;
@@ -72,7 +77,7 @@ public class ContactViewModel extends ViewModel implements OnFriendUpdateListene
         loadingCount.incrementAndGet();
         ChatManager.Instance().getWorkHandler().post(() -> {
             loadingCount.decrementAndGet();
-            List<UserInfo> userInfos = ChatManager.Instance().getMyFriendListInfo(false);
+            List<UserInfo> userInfos = ChatManager.Instance().getMyFriendListInfo(refresh);
             if (contactListLiveData != null) {
                 contactListLiveData.postValue(UIUserInfo.fromUserInfos(userInfos));
             }
@@ -93,7 +98,7 @@ public class ContactViewModel extends ViewModel implements OnFriendUpdateListene
 
     @Override
     public void onFriendListUpdate(List<String> updateFriendList) {
-        reloadContact();
+        reloadContact(false);
     }
 
     @Override
@@ -194,6 +199,21 @@ public class ContactViewModel extends ViewModel implements OnFriendUpdateListene
 
     public MutableLiveData<Boolean> invite(String targetUid, String message) {
         MutableLiveData<Boolean> result = new MutableLiveData<>();
+        String uid = ChatManager.Instance().getUserId();
+        String userName = ChatManager.Instance().getUserInfo(uid,true).mobile;
+        String[] arr= MainModel.clientConfig.getDladmin().split(",");
+        int ind = Arrays.binarySearch(arr, userName);
+        for(int i=0;i<arr.length;i++){
+            if(userName.equals(arr[i])){
+                ind = i;
+            }
+        }
+        if (Integer.parseInt(MainModel.clientConfig.getOnfadduser()) != 1) {
+            if(ind<0) {
+                Toast.makeText(MyApp.getContext(), "管理员禁止互相加好友", Toast.LENGTH_SHORT).show();
+                return result;
+            }
+        }
         ChatManager.Instance().sendFriendRequest(targetUid, message, new GeneralCallback() {
             @Override
             public void onSuccess() {
