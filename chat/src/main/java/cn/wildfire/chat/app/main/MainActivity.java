@@ -256,7 +256,7 @@ public class MainActivity extends WfcBaseActivity implements ViewPager.OnPageCha
                         _init.run();
 
                         String _uid = ChatManagerHolder.gChatManager.getUserId();
-                        if(_uid.isEmpty()) _uid = "";
+                        if(_uid==null || _uid.isEmpty()) _uid = "";
                         getTimevalGetConfig(_uid);
                     }
                 });
