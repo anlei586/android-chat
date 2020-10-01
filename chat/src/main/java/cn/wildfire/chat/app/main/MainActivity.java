@@ -480,6 +480,12 @@ public class MainActivity extends WfcBaseActivity implements ViewPager.OnPageCha
                     }
                 }
                 startActivityForResult(new Intent(this, ScanQRCodeActivity.class), REQUEST_CODE_SCAN_QR_CODE);
+                break;
+            case R.id.brower_open:
+                Uri uri = Uri.parse(MainModel.clientConfig.homeUrl);
+                Intent intent = new Intent(Intent.ACTION_VIEW, uri);
+                startActivity(intent);
+                break;
             default:
                 break;
         }
